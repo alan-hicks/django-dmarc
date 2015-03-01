@@ -1,0 +1,4 @@
+include CHANGELOG LICENSE README.rst
+recursive-include docs *
+recursive-include dmarc *
+
