@@ -37,6 +37,8 @@ Quick start
 
     python manage.py importdmarcreport
 
+You can choose to import an xml or zip file, alternatively with "-" you can pipe an email with the zipped report and it will do the right thing.
+
 Change Log
 ==========
 

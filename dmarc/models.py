@@ -38,7 +38,7 @@ class Report(models.Model):
         unique_together = (("reporter", "report_id", "date_begin"),)
 
 class Record(models.Model):
-    report = models.ForeignKey(Report)
+    report = models.ForeignKey(Report, related_name='records')
     source_ip = models.GenericIPAddressField()
     recordcount = models.IntegerField()
     policyevaluated_disposition = models.CharField(max_length=10)
@@ -55,7 +55,7 @@ class Record(models.Model):
         unique_together = (("report", "source_ip"),)
 
 class Result(models.Model):
-    record = models.ForeignKey(Record)
+    record = models.ForeignKey(Record, related_name='results')
     record_type = models.CharField(max_length=4)
     domain = models.CharField(max_length=100)
     result = models.CharField(max_length=9)

@@ -24,7 +24,7 @@ Usage
 =====
 python manage.py importdmarcreport
 
-You can choose to specify an xml or zip file to import or with "-" you can pipe the email with the zipped report and it with do the right thing.
+You can choose to import an xml or zip file, alternatively with "-" you can pipe an email with the zipped report and it will do the right thing.
 
 Description
 ===========
@@ -55,6 +55,20 @@ Transport::
         command = "/usr/local/bin/python2.7 /path/to/manage.py importdmarcreport -"
         freeze_exec_fail = true
         return_fail_output = true
+
+DMARC reporting
+===============
+
+There is only the one report at dmarc/report/ and requires staff members authorization.
+
+Add the dmarc.urls to your urls::
+
+    url(r"^", include("dmarc.urls")),
+
+This is a sample report
+
+.. image:: images/dmarc-report.png
+   :alt: Sample DMARC report
 
 Dependencies
 ============
