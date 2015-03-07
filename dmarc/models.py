@@ -61,7 +61,4 @@ class Result(models.Model):
     result = models.CharField(max_length=9)
 
     def __unicode__(self):
-        return "%s-%s" % (self.record_type, domain,)
-
-    class Meta:
-        unique_together = (("record", "record_type", "domain"),)
+        return "%s:%s-%s" % (str(id), self.record_type, domain,)
