@@ -51,9 +51,6 @@ class Record(models.Model):
     def __unicode__(self):
         return self.source_ip
 
-    class Meta:
-        unique_together = (("report", "source_ip"),)
-
 class Result(models.Model):
     record = models.ForeignKey(Record, related_name='results')
     record_type = models.CharField(max_length=4)
