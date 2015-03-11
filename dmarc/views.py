@@ -16,7 +16,11 @@ from dmarc.models import Report
 # Create your views here.
 @staff_member_required
 def dmarc_report(request):
-    report_list = Report.objects.select_related('reporter', 'records').prefetch_related('reporter', 'records').order_by('-date_begin', 'reporter__org_name').all()
+    report_list = Report.objects.select_related(
+            'reporter',
+        ).prefetch_related(
+            'records__results'
+        ).order_by('-date_begin', 'reporter__org_name').all()
     paginator = Paginator(report_list, 2)
 
     page = request.GET.get('page')
