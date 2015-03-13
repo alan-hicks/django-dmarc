@@ -58,4 +58,4 @@ class Result(models.Model):
     result = models.CharField(max_length=9)
 
     def __unicode__(self):
-        return "%s:%s-%s" % (str(id), self.record_type, domain,)
+        return "%s:%s-%s" % (str(self.id), self.record_type, self.domain,)
