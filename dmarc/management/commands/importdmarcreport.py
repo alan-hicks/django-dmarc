@@ -3,12 +3,11 @@
 #
 # License: BSD
 #----------------------------------------------------------------------
-"""Import DMARC reports
+"""Import DMARC Aggregate Reports
 """
 from __future__ import unicode_literals
 
 import os, sys
-import cStringIO
 import pytz
 import xml.etree.ElementTree as ET
 import zipfile
@@ -16,6 +15,7 @@ import zipfile
 from datetime import datetime
 from email import message_from_file
 from stat import S_ISREG
+from cStringIO import StringIO
 from time import timezone
 
 from django.db import Error
@@ -27,14 +27,14 @@ from dmarc.models import Reporter, Report, Record, Result
 
 class Command(BaseCommand):
     """
-    Command class for importing DMARC report
+    Command class for importing DMARC Aggregate Reports
     """
     args = '<dmarc_report>'
-    help = 'Imports a DMARC report'
+    help = 'Imports a DMARC Aggregate Reports'
 
     def handle(self, *args, **options):
         """
-        Handle method to import a DMARC report
+        Handle method to import a DMARC Aggregate Reports
         Either pass in
         - the email message and the DMARC XML data will be extracted;
         - the zip file and the xmlf iel will be extracted;
@@ -42,7 +42,7 @@ class Command(BaseCommand):
         """
 
         if settings.DEBUG:
-            self.stdout.write("Importing DMARC report")
+            self.stdout.write("Importing DMARC Aggregate Reports")
 
         dmarc_iszipfile = False
         dmarc_xml = ''
@@ -51,7 +51,7 @@ class Command(BaseCommand):
         if len(args) == 1:
             if args[0] == '-':
                 # The report is an email passed via a pipe
-                email_msg = cStringIO.StringIO()
+                email_msg = StringIO()
                 for line in sys.stdin:
                     email_msg.write(line)
                 email_msg.seek(0)
@@ -61,7 +61,7 @@ class Command(BaseCommand):
                         if mimepart.get_content_type() == 'application/x-zip-compressed' \
                             or mimepart.get_content_type() == 'application/x-zip' \
                             or mimepart.get_content_type() == 'application/zip':
-                            dmarc_zip = cStringIO.StringIO()
+                            dmarc_zip = StringIO()
                             dmarc_zip.write(mimepart.get_payload(decode=True))
                             dmarc_zip.seek(0)
                             ZipFile = zipfile.ZipFile(dmarc_zip, 'r')
@@ -186,6 +186,10 @@ class Command(BaseCommand):
         report.policy_p = policy_p
         report.policy_sp = policy_sp
         report.policy_pct = policy_pct
+        report_xml = StringIO()
+        tree.write(report_xml, encoding="utf-8", xml_declaration=True)
+        report_xml.seek(0)
+        report.report_xml = report_xml.readlines()
         try:
             report.save()
         except Error as e:
