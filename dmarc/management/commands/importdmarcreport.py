@@ -11,6 +11,7 @@ import os, sys
 import pytz
 import xml.etree.ElementTree as ET
 import zipfile
+import logging
 
 from datetime import datetime
 from email import message_from_file
@@ -41,8 +42,9 @@ class Command(BaseCommand):
         - or the xml file.
         """
 
-        if settings.DEBUG:
-            self.stdout.write("Importing DMARC Aggregate Reports")
+        logger = logging.getLogger(__name__)
+        logger.info("Importing DMARC Aggregate Reports")
+        ignore_errors = False
 
         dmarc_iszipfile = False
         dmarc_xml = ''
@@ -51,6 +53,7 @@ class Command(BaseCommand):
         if len(args) == 1:
             if args[0] == '-':
                 # The report is an email passed via a pipe
+                # Ignore errors to prevent email bounces
                 email_msg = StringIO()
                 for line in sys.stdin:
                     email_msg.write(line)
@@ -75,20 +78,20 @@ class Command(BaseCommand):
                 # We were passed a file name
                 dmarc_file = args[0]
                 if os.path.exists(dmarc_file):
-                    # It's a file, call the callback function
-                    if settings.DEBUG:
-                        print "Found %s" % dmarc_file
+                    msg = "Found %s" % dmarc_file
+                    logger.debug(msg)
                 else:
                     msg = "Unable to find DMARC file: %s" % dmarc_file
+                    logger.error(msg)
                     raise CommandError(msg)
 
                 mode = os.stat(dmarc_file).st_mode
                 if not S_ISREG(mode):
                     msg = "Unable to read DMARC file: %s" % dmarc_file
+                    logger.error(msg)
                     raise CommandError(msg)
-                if settings.DEBUG:
-                    msg = "Importing DMARC: %s" % dmarc_file
-                    self.stdout.write(msg)
+                msg = "Importing DMARC: %s" % dmarc_file
+                logger.debug(msg)
 
                 if zipfile.is_zipfile(dmarc_file):
                     dmarc_iszipfile = True
@@ -100,6 +103,7 @@ class Command(BaseCommand):
                     ZipFile.close()
         else:
             msg = "Check usage, please supply a single DMARC report file or - for email on stdin"
+            logger.error(msg)
             raise CommandError(msg)
 
         tz_utc = pytz.timezone('UTC')
@@ -131,9 +135,11 @@ class Command(BaseCommand):
 
         if org_name is None:
             msg = "This DMARC report does not have an org_name"
+            logger.error(msg)
             raise CommandError(msg)
         if report_id is None:
             msg = "This DMARC report for %s does not have a report_id" % org_name
+            logger.error(msg)
             raise CommandError(msg)
         try:
             reporter = Reporter.objects.get(org_name=org_name)
@@ -142,6 +148,7 @@ class Command(BaseCommand):
                 reporter = Reporter.objects.create(org_name=org_name, email=email)
             except Error as e:
                 msg = "Unable to create DMARC report for %s: $s" % (org_name, e)
+                logger.error(msg)
                 raise CommandError(msg)
 
         # Reporting policy
@@ -177,6 +184,7 @@ class Command(BaseCommand):
             report_date_end = datetime.fromtimestamp(float(report_end)).replace(tzinfo=tz_utc)
         except:
             msg = "Unable to understand DMARC reporting dates"
+            logger.error(msg)
             raise CommandError(msg)
         report.date_begin = report_date_begin
         report.date_end = report_date_end
@@ -194,6 +202,7 @@ class Command(BaseCommand):
             report.save()
         except Error as e:
             msg = "Unable to save the DMARC report header %s: %s" % (report_id, e)
+            logger.error(msg)
             raise CommandError(msg)
 
         # Record
@@ -229,6 +238,7 @@ class Command(BaseCommand):
 
             if len(source_ip) == 0:
                 msg = "DMARC report record useless without a source ip"
+                logger.error(msg)
                 raise CommandError(msg)
 
             # Create the record
@@ -247,6 +257,7 @@ class Command(BaseCommand):
                 record.save()
             except Error as e:
                 msg = "Unable to save the DMARC report record: %s" % e
+                logger.error(msg)
                 raise CommandError(msg)
 
             auth_results = node.find('auth_results')
@@ -267,4 +278,5 @@ class Command(BaseCommand):
                     result.save()
                 except Error as e:
                     msg = "Unable to save the DMARC report result %s for %s: %s" % (resulttype.tag, result_domain, e.message)
+                    logger.error(msg)
                     raise CommandError(msg)
