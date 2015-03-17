@@ -44,7 +44,7 @@ class Command(BaseCommand):
 
         logger = logging.getLogger(__name__)
         logger.info("Importing DMARC Aggregate Reports")
-        ignore_errors = False
+        supress_errors = False
 
         dmarc_iszipfile = False
         dmarc_xml = ''
@@ -54,6 +54,7 @@ class Command(BaseCommand):
             if args[0] == '-':
                 # The report is an email passed via a pipe
                 # Ignore errors to prevent email bounces
+                supress_errors = True
                 email_msg = StringIO()
                 for line in sys.stdin:
                     email_msg.write(line)
@@ -136,11 +137,13 @@ class Command(BaseCommand):
         if org_name is None:
             msg = "This DMARC report does not have an org_name"
             logger.error(msg)
-            raise CommandError(msg)
+            if not supress_errors:
+                raise CommandError(msg)
         if report_id is None:
             msg = "This DMARC report for %s does not have a report_id" % org_name
             logger.error(msg)
-            raise CommandError(msg)
+            if not supress_errors:
+                raise CommandError(msg)
         try:
             reporter = Reporter.objects.get(org_name=org_name)
         except ObjectDoesNotExist:
@@ -149,7 +152,8 @@ class Command(BaseCommand):
             except Error as e:
                 msg = "Unable to create DMARC report for %s: $s" % (org_name, e)
                 logger.error(msg)
-                raise CommandError(msg)
+                if not supress_errors:
+                    raise CommandError(msg)
 
         # Reporting policy
         policy_published = root.findall('policy_published')
@@ -185,7 +189,8 @@ class Command(BaseCommand):
         except:
             msg = "Unable to understand DMARC reporting dates"
             logger.error(msg)
-            raise CommandError(msg)
+            if not supress_errors:
+                raise CommandError(msg)
         report.date_begin = report_date_begin
         report.date_end = report_date_end
         report.policy_domain = policy_domain
@@ -203,7 +208,8 @@ class Command(BaseCommand):
         except Error as e:
             msg = "Unable to save the DMARC report header %s: %s" % (report_id, e)
             logger.error(msg)
-            raise CommandError(msg)
+            if not supress_errors:
+                raise CommandError(msg)
 
         # Record
         for node in root.findall('record'):
@@ -239,7 +245,8 @@ class Command(BaseCommand):
             if len(source_ip) == 0:
                 msg = "DMARC report record useless without a source ip"
                 logger.error(msg)
-                raise CommandError(msg)
+                if not supress_errors:
+                    raise CommandError(msg)
 
             # Create the record
             record = Record()
@@ -258,7 +265,8 @@ class Command(BaseCommand):
             except Error as e:
                 msg = "Unable to save the DMARC report record: %s" % e
                 logger.error(msg)
-                raise CommandError(msg)
+                if not supress_errors:
+                    raise CommandError(msg)
 
             auth_results = node.find('auth_results')
             for resulttype in auth_results:
@@ -279,4 +287,5 @@ class Command(BaseCommand):
                 except Error as e:
                     msg = "Unable to save the DMARC report result %s for %s: %s" % (resulttype.tag, result_domain, e.message)
                     logger.error(msg)
-                    raise CommandError(msg)
+                    if not supress_errors:
+                        raise CommandError(msg)
