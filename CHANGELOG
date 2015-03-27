@@ -1,3 +1,9 @@
+Version 0.1.8 (2015-03-27)
+--------------------------
+
+Fix reference before assignment
+Add save original XML report
+
 Version 0.1.7 (2015-03-17)
 --------------------------
 
