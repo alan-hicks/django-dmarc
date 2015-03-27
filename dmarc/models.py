@@ -5,7 +5,7 @@
 #----------------------------------------------------------------------
 
 """
-DMARC models for managing ASF reports
+DMARC models for managing Aggregate Reports
 http://dmarc.org/resources/specification/
 """
 
@@ -30,6 +30,7 @@ class Report(models.Model):
     policy_p = models.CharField('Requested handling policy', max_length=10)
     policy_sp = models.CharField('Requested handling policy for subdomains', max_length=10)
     policy_pct = models.SmallIntegerField('Sampling rate')
+    report_xml = models.TextField(blank=True)
 
     def __unicode__(self):
         return self.report_id

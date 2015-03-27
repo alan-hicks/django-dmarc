@@ -111,7 +111,8 @@ class Command(BaseCommand):
 
         # Open and parse the DMARC report
         if dmarc_iszipfile:
-            root = ET.fromstring(dmarc_xml)
+            tree = ET.fromstring(dmarc_xml)
+            root = tree.getroot()
         else:
             tree = ET.parse(dmarc_file)
             root = tree.getroot()
