@@ -1,3 +1,8 @@
+Version 0.1.9 (2015-03-28)
+--------------------------
+
+Fix AttributeError: 'Element' object has no attribute 'getroot'
+
 Version 0.1.8 (2015-03-27)
 --------------------------
 
