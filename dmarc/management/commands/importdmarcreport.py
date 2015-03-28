@@ -110,11 +110,18 @@ class Command(BaseCommand):
         tz_utc = pytz.timezone('UTC')
 
         # Open and parse the DMARC report
+        # Exctract the xml report and hold in memory for storage
+        # Reports are fairly small so should not have much impact.
+        report_xml = ''
         if dmarc_iszipfile:
-            tree = ET.fromstring(dmarc_xml)
-            root = tree.getroot()
+            report_xml = dmarc_xml
+            root = ET.fromstring(dmarc_xml)
         else:
             tree = ET.parse(dmarc_file)
+            report_xml_stringio = StringIO()
+            tree.write(report_xml_stringio, encoding="utf-8", xml_declaration=True)
+            report_xml_stringio.seek(0)
+            report_xml = report_xml_stringio.readlines()
             root = tree.getroot()
 
         # Report metadata
@@ -200,10 +207,7 @@ class Command(BaseCommand):
         report.policy_p = policy_p
         report.policy_sp = policy_sp
         report.policy_pct = policy_pct
-        report_xml = StringIO()
-        tree.write(report_xml, encoding="utf-8", xml_declaration=True)
-        report_xml.seek(0)
-        report.report_xml = report_xml.readlines()
+        report.report_xml = report_xml
         try:
             report.save()
         except Error as e:
