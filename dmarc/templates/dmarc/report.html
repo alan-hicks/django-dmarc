@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block meta_title %}{% trans "DMARC Report" %}{% endblock %}
+{% block title %}{% trans "DMARC Report" %}{% endblock %}
+{% block extra_head %}
+<meta name="robots" content="noindex">
+{% endblock %}
+
+{% block main %}
+
+<div id="dmarcreport">
+    <h2>{% trans "DMARC Report" %}</h2>
+    {% for report in reports.object_list %}
+    <h3><span title="{{ report.reporter.email }}">{{ report.reporter }}</span>
+        Id: {{ report.report_id }}</h3>
+    <p>{% trans "Reporting period" %}: {{ report.date_begin }} - {{ report.date_end }}</p>
+    <div>
+        <span class="label label-info" title='{% trans "Domain policy" %}'>domain: {{ report.policy_domain }}</span>
+        <span class="label label-info" title='{% trans "DKIM alignment mode" %}'>adkim: {{ report.policy_adkim }}</span>
+        <span class="label label-info" title='{% trans "SPF alignment mode" %}'>aspf: {{ report.policy_aspf }}</span>
+        <span class="label label-info" title='{% trans "Requested handling policy" %}'>p: {{ report.policy_p }}</span>
+        <span class="label label-info" title='{% trans "Requested handling policy for subdomains" %}'>sp: {{ report.policy_sp }}</span>
+        <span class="label label-info" title='{% trans "Sampling rate" %}'>pct: {{ report.policy_pct }}</span>
+    </div>
+        {% for record in report.records.all %}
+    <div>
+        <h4>Source ip: {{ record.source_ip }} <span class="badge badge-primary" title='{% trans "Record count" %}'>{{ record.recordcount }}</span></h4>
+        <div>
+            <span class="label label-info" title='{% trans "" %}Disposition'>disp: {{ record.policyevaluated_disposition }}</span>
+            <span
+                {% if record.policyevaluated_dkim == 'pass' %} class="label label-success"
+                {% elif record.policyevaluated_dkim == 'fail' %} class="label label-danger"
+                {% else %} class="label label-default"
+                {% endif %}
+                title='dkim'>dkim: {{ record.policyevaluated_dkim }}</span>
+            <span
+                {% if record.policyevaluated_spf == 'pass' %} class="label label-success"
+                {% elif record.policyevaluated_spf == 'fail' %} class="label label-danger"
+                {% else %} class="label label-default"
+                {% endif %}
+                title='spf'>spf: {{ record.policyevaluated_spf }}</span>
+            <span class="label label-info" title='reason'>{{ record.policyevaluated_reasontype }}</span>
+            <span class="label label-info" title='comment'>{{ record.policyevaluated_reasoncomment }}</span>
+            <span class="label label-info" title='Header from'>{{ record.identifier_headerfrom }}</span>
+            {% for result in record.results.all %}
+            <span
+                {% if result.result == 'pass' %} class="label label-success"
+                {% elif result.result == 'softfail' %} class="label label-warning"
+                {% elif result.result == 'fail' %} class="label label-danger"
+                {% elif result.result == 'permerror' %} class="label label-danger"
+                {% else %} class="label label-default"
+                {% endif %}>{{ result.record_type }} {{ result.domain }} {{ result.result }}</span>
+            {% endfor %}
+        </div>
+    </div>
+        {% endfor %}
+    {% endfor %}
+</div>
+
+{% if reports.has_other_pages %}
+<nav>
+  <ul class="pagination">
+    <li class="prev previous{% if not reports.has_previous %} disabled{% endif %}">
+        <a{% if reports.has_previous %} href="?page={{ reports.previous_page_number }}"{% endif %}>&larr;</a>
+    </li>
+{% for page_range in reports.paginator.page_range %}
+    {% if reports.paginator.page_range|length > 10 %}
+    {% if reports.number < page_range|add:"6" and reports.number|add:"6" > page_range %}
+    <li {% if reports.number == page_range %} class="active"{% endif %}><a
+        {% if reports.number == page_range %}
+        href="#"
+        {% else %}
+        href="?page={{ page_range }}"
+        {% endif %}
+        >{{ page_range }}</a></li>
+        {% endif %}
+    {% else %}
+    <li {% if reports.number == page_range %} class="active"{% endif %}><a
+        {% if reports.number == page_range %}
+        href="#"
+        {% else %}
+        href="?page={{ page_range }}"
+        {% endif %}
+    >{{ page_range }}</a></li>
+    {% endif %}
+{% endfor %}
+    <li class="next{% if not reports.has_next %} disabled{% endif %}">
+        <a{% if reports.has_next %} href="?page={{ reports.next_page_number }}"{% endif %}>&rarr;</a>
+    </li>
+  </ul>
+</nav>
+{% endif %}
+
+{% endblock %}
