@@ -65,7 +65,7 @@ Add the dmarc.urls to your urls::
 
     url(r"^", include("dmarc.urls")),
 
-This is a sample report
+This is a sample report styled with `Bootstrap`_.
 
 .. image:: images/dmarc-report.png
    :alt: Sample DMARC report
@@ -74,6 +74,7 @@ Dependencies
 ============
 
 * `Django`_ 1.7
+* `Bootstrap`_ (optional)
 
 Resources
 =========
@@ -107,6 +108,7 @@ Communications are expected to conform to the `Django Code of Conduct`_.
 .. _`DMARC`: http://dmarc.org/
 .. _`Google gmail DMARC`: https://support.google.com/a/answer/2466580
 .. _`Download from PyPI`: https://pypi.python.org/pypi/django-dmarc
+.. _`Bootstrap`: http://getbootstrap.com/
 
 .. PEOPLE WITH QUOTES
 
