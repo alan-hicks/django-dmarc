@@ -45,7 +45,7 @@ class Record(models.Model):
     policyevaluated_disposition = models.CharField(max_length=10)
     policyevaluated_dkim = models.CharField(max_length=4)
     policyevaluated_spf = models.CharField(max_length=4)
-    policyevaluated_reasontype = models.CharField(blank=True, max_length=15)
+    policyevaluated_reasontype = models.CharField(blank=True, max_length=75)
     policyevaluated_reasoncomment = models.CharField(blank=True, max_length=100)
     identifier_headerfrom = models.CharField(max_length=100)
 
