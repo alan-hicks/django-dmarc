@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------
-# Copyright (c) 2015, Persistent Objects Ltd http://p-o.co.uk/
+# Copyright (c) 2016, Persistent Objects Ltd http://p-o.co.uk/
 #
 # License: BSD
 #----------------------------------------------------------------------
@@ -12,6 +12,7 @@ import pytz
 import xml.etree.ElementTree as ET
 import zipfile
 import logging
+import tempfile
 
 from datetime import datetime
 from email import message_from_file
@@ -64,16 +65,35 @@ class Command(BaseCommand):
                     for mimepart in dmarcemail.walk():
                         if mimepart.get_content_type() == 'application/x-zip-compressed' \
                             or mimepart.get_content_type() == 'application/x-zip' \
-                            or mimepart.get_content_type() == 'application/zip':
+                            or mimepart.get_content_type() == 'application/zip' \
+                            or mimepart.get_content_type() == 'application/octet-stream':
                             dmarc_zip = StringIO()
                             dmarc_zip.write(mimepart.get_payload(decode=True))
                             dmarc_zip.seek(0)
-                            ZipFile = zipfile.ZipFile(dmarc_zip, 'r')
-                            files = ZipFile.infolist()
-                            # The DMARC report should only contain a single xml file
-                            for f in files:
-                                dmarc_xml = ZipFile.read(f)
-                            ZipFile.close()
+                            if zipfile.is_zipfile(dmarc_zip):
+                                msg = "DMARC is zipfile"
+                                logger.debug(msg)
+                            else:
+                                msg = "DMARC is not a zipfile"
+                                logger.debug(msg)
+                            try:
+                                ZipFile = zipfile.ZipFile(dmarc_zip, 'r')
+                                files = ZipFile.infolist()
+                                # The DMARC report should only contain a single xml file
+                                for f in files:
+                                    dmarc_xml = ZipFile.read(f)
+                                ZipFile.close()
+                            except (zipfile.BadZipfile):
+                                msg = 'Unable to unzip mimepart'
+                                logger.error(msg)
+                                tf = tempfile.mkstemp(prefix='dmarc-',suffix='.gz')
+                                dmarc_zip.seek(0)
+                                tmpf = os.fdopen(tf[0],'w')
+                                tmpf.write(dmarc_zip.getvalue())
+                                tmpf.close()
+                                msg = 'Saved in: {}'.format(tf[1])
+                                logger.debug(msg)
+                                raise CommandError(msg)
                             dmarc_iszipfile = True
             else:
                 # We were passed a file name
@@ -114,9 +134,17 @@ class Command(BaseCommand):
         # Reports are fairly small so should not have much impact.
         report_xml = ''
         if dmarc_iszipfile:
+            try:
+                msg = "Processing xml: {}".format(dmarc_xml)
+                logger.debug(msg)
+            except:
+                msg = "Processing xml"
+                logger.error(msg)
             report_xml = dmarc_xml
             root = ET.fromstring(dmarc_xml)
         else:
+            msg = "Processing file: {}".format(dmarc_xml)
+            logger.error(msg)
             tree = ET.parse(dmarc_file)
             report_xml_stringio = StringIO()
             tree.write(report_xml_stringio, encoding="utf-8", xml_declaration=True)
