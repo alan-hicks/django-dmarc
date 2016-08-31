@@ -73,7 +73,7 @@ This is a sample report styled with `Bootstrap`_.
 Dependencies
 ============
 
-* `Django`_ 1.7
+* `Django`_ 1.8
 * `Bootstrap`_ (optional)
 
 Resources

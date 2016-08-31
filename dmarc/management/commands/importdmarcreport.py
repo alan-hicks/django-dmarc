@@ -55,6 +55,7 @@ class Command(BaseCommand):
             if args[0] == '-':
                 # The report is an email passed via a pipe
                 # Ignore errors to prevent email bounces
+                dmarc_file = 'pipe'
                 supress_errors = True
                 email_msg = StringIO()
                 for line in sys.stdin:
@@ -135,7 +136,7 @@ class Command(BaseCommand):
         report_xml = ''
         if dmarc_iszipfile:
             try:
-                msg = "Processing xml: {}".format(dmarc_xml)
+                msg = "Processing xml: {} {}".format(dmarc_xml, dmarc_file)
                 logger.debug(msg)
             except:
                 msg = "Processing xml"
@@ -143,7 +144,7 @@ class Command(BaseCommand):
             report_xml = dmarc_xml
             root = ET.fromstring(dmarc_xml)
         else:
-            msg = "Processing file: {}".format(dmarc_xml)
+            msg = "Processing file: {}".format(dmarc_file)
             logger.error(msg)
             tree = ET.parse(dmarc_file)
             report_xml_stringio = StringIO()
