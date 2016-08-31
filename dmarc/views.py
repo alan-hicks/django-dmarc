@@ -13,7 +13,6 @@ from django.shortcuts import render
 
 from dmarc.models import Report
 
-# Create your views here.
 @staff_member_required
 def dmarc_report(request):
     report_list = Report.objects.select_related(
