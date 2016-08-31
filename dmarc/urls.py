@@ -7,10 +7,9 @@
 DMARC urls
 http://dmarc.org/resources/specification/
 """
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+from dmarc import views
 
-urlpatterns = []
-
-urlpatterns += patterns("dmarc.views",
-    url("^dmarc/report/$", "dmarc_report", name="dmarc_report"),
-)
+urlpatterns = [
+    url("^report/$", views.dmarc_report),
+]
