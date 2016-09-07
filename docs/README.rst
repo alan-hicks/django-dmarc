@@ -1,6 +1,6 @@
-============
-Django DMARC
-============
+=============
+Documentation
+=============
 
 **Making it easier to manage DMARC reports**
 
@@ -11,7 +11,7 @@ Quick start
 
 1. Install the app
 
-2. Add "dmarc" to your INSTALLED_APPS setting like this::
+2. Add "dmarc" to your INSTALLED_APPS setting::
 
     INSTALLED_APPS = (
         ...
@@ -20,11 +20,15 @@ Quick start
 
 3. Run 'python manage.py migrate' to create the database models.
 
+4. import a report with::
+
+    python manage.py importdmarcreport --email
+
 Usage
 =====
 python manage.py importdmarcreport
 
-You can choose to import an xml or zip file, alternatively with "-" you can pipe an email with the zipped report and it will do the right thing.
+You can choose to import an xml or email file, alternatively with "--email -" you can pipe an email and it will do the right thing.
 
 Description
 ===========
@@ -33,11 +37,11 @@ This Django DMARC project aims to help with implementation of DMARC "Domain-base
 
 Perhaps one of the main reasons DMARC is gaining traction amongst organisations of all sizes is a desire to protect their brand and reputation.  By defining and implementing a DMARC policy, an organization can help combat phishing, protect users and their reputation.
 
-Currently at beta stage, importing and data structure are fairly stable, reporting todo.
+Currently at beta stage, importing and data structure are fairly stable, as is reporting.
 
 Choosing Django was an easy choice as it offers an easily built import mechanism and transformation from xml to database through to presentation.
 
-Although it has options for importing either xml or zip files, the way it's used here at Persistent Objects is taking the email directly from SMTP and piping it through to the import routine.
+Although it has options for importing either xml or email files, the way it's used here at Persistent Objects is taking the email directly from SMTP and piping it through to the import routine.
 
 We use Exim here and the configuration couldn't be easier
 
@@ -52,7 +56,7 @@ Transport::
 
     trans_dmarcreports:
         driver = pipe
-        command = "/usr/local/bin/python2.7 /path/to/manage.py importdmarcreport -"
+        command = "/usr/local/bin/python2.7 /path/to/manage.py importdmarcreport --email -"
         freeze_exec_fail = true
         return_fail_output = true
 
@@ -63,7 +67,12 @@ There is only the one report at dmarc/report/ and requires staff members authori
 
 Add the dmarc.urls to your urls::
 
-    url(r"^", include("dmarc.urls")),
+    from dmarc import urls as dmarc_urls
+
+    urlpatterns = [
+        ...
+        url(r"^dmarc/", include(dmarc_urls)),
+    ]
 
 This is a sample report styled with `Bootstrap`_.
 

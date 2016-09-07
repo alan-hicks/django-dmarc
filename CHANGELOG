@@ -1,14 +1,25 @@
+Version 0.3.0 (2016-09-07)
+---------------------------
+
+* Bump version to 0.3.0
+* Add gzip handling
+* Refactor to use argparse
+* Refactor code
+
+Note change to arguments requiring email or xml
+and either can be - for stdin
+
 Version 0.2.2 (2016-08-31)
 ---------------------------
 
-Bump version to 0.2.2
-Remove dependency on django.conf.urls.patterns
+* Bump version to 0.2.2
+* Remove dependency on django.conf.urls.patterns
 
 Version 0.2.1 (2016-08-31)
 ---------------------------
 
-Bump minimum Django version to 1.8
-Improve processing descriptions
+* Bump minimum Django version to 1.8
+* Improve processing descriptions
 
 Version 0.2.0 (2016-08-03)
 ---------------------------
@@ -18,8 +29,8 @@ Add error checking and saving for bad zipfile
 Version 0.1.10 (2015-04-22)
 ---------------------------
 
-Added reference to Bootstrap styles (Thanks Jan (linjan))
-Add sample report
+* Added reference to Bootstrap styles (Thanks Jan (linjan))
+* Add sample report
 
 Version 0.1.9 (2015-03-28)
 --------------------------
@@ -29,15 +40,15 @@ Fix AttributeError: 'Element' object has no attribute 'getroot'
 Version 0.1.8 (2015-03-27)
 --------------------------
 
-Fix reference before assignment
-Add save original XML report
+* Fix reference before assignment
+* Add save original XML report
 
 Version 0.1.7 (2015-03-17)
 --------------------------
 
-Save XML with test
-Add Logging
-Supress email errors
+* Save XML with test
+* Add Logging
+* Supress email errors
 
 Version 0.1.6 (2015-03-13)
 --------------------------
