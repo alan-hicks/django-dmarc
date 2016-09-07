@@ -124,7 +124,7 @@ class Command(BaseCommand):
                         dmarc_xml = ZipFile.read(f)
                     ZipFile.close()
         else:
-            msg = "Check usage, please supply a single DMARC report file or - for email on stdin"
+            msg = "Check usage, please supply a single DMARC report file or email"
             logger.error(msg)
             raise CommandError(msg)
 

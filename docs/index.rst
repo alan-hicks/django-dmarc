@@ -18,6 +18,7 @@ Contents
    :maxdepth: 1
 
    README
+   changelog
 
 Quick start
 -----------
@@ -39,16 +40,11 @@ Quick start
 
 You can choose to import an xml or zip file, alternatively with "-" you can pipe an email with the zipped report and it will do the right thing.
 
-Change Log
-==========
-
-.. include:: ../CHANGELOG
-
 Copyright
 =========
 
 Django DMARC and this documentation is
-Copyright (c) 2015, Persistent Objects Ltd.
+Copyright (c) 2015-2016, Persistent Objects Ltd.
 All rights reserved.
 
 License
