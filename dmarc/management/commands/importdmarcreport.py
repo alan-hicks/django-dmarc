@@ -265,6 +265,7 @@ class Command(BaseCommand):
             if mimepart.get_content_type() == 'application/x-zip-compressed' \
                 or mimepart.get_content_type() == 'application/x-zip' \
                 or mimepart.get_content_type() == 'application/zip' \
+                or mimepart.get_content_type() == 'application/gzip' \
                 or mimepart.get_content_type() == 'application/octet-stream':
                 dmarc_zip = StringIO()
                 dmarc_zip.write(mimepart.get_payload(decode=True))
