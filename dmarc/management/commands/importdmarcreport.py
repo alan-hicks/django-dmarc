@@ -10,16 +10,19 @@ from __future__ import unicode_literals
 import os, sys
 import pytz
 import xml.etree.ElementTree as ET
+import gzip
 import zipfile
 import logging
 import tempfile
 
 from datetime import datetime
-from email import message_from_file
+from email import message_from_file, message_from_string
 from stat import S_ISREG
 from cStringIO import StringIO
 from time import timezone
+from argparse import FileType
 
+from django.db.utils import IntegrityError
 from django.db import Error
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -30,128 +33,55 @@ from dmarc.models import Reporter, Report, Record, Result
 class Command(BaseCommand):
     """
     Command class for importing DMARC Aggregate Reports
+    Most errors are not raised to prevent email bounces
     """
-    args = '<dmarc_report>'
-    help = 'Imports a DMARC Aggregate Reports'
+    help = 'Imports a DMARC Aggregate Report from either email or xml'
+
+    def add_arguments(self, parser):
+        parser.add_argument('-e', '--email',
+            type=FileType('r'),
+            default=False,
+            help='Import from email file, or - for stdin'
+        )
+        parser.add_argument('-x', '--xml',
+            type=FileType('r'),
+            default=False,
+            help='Import from xml file, or - for stdin'
+        )
 
     def handle(self, *args, **options):
         """
         Handle method to import a DMARC Aggregate Reports
         Either pass in
         - the email message and the DMARC XML data will be extracted;
-        - the zip file and the xmlf iel will be extracted;
         - or the xml file.
         """
 
         logger = logging.getLogger(__name__)
         logger.info("Importing DMARC Aggregate Reports")
-        supress_errors = False
 
-        dmarc_iszipfile = False
         dmarc_xml = ''
-        dmarc_file = ''
 
-        if len(args) == 1:
-            if args[0] == '-':
-                # The report is an email passed via a pipe
-                # Ignore errors to prevent email bounces
-                dmarc_file = 'pipe'
-                supress_errors = True
-                email_msg = StringIO()
-                for line in sys.stdin:
-                    email_msg.write(line)
-                email_msg.seek(0)
-                if email_msg:
-                    dmarcemail = message_from_file(email_msg)
-                    for mimepart in dmarcemail.walk():
-                        if mimepart.get_content_type() == 'application/x-zip-compressed' \
-                            or mimepart.get_content_type() == 'application/x-zip' \
-                            or mimepart.get_content_type() == 'application/zip' \
-                            or mimepart.get_content_type() == 'application/octet-stream':
-                            dmarc_zip = StringIO()
-                            dmarc_zip.write(mimepart.get_payload(decode=True))
-                            dmarc_zip.seek(0)
-                            if zipfile.is_zipfile(dmarc_zip):
-                                msg = "DMARC is zipfile"
-                                logger.debug(msg)
-                            else:
-                                msg = "DMARC is not a zipfile"
-                                logger.debug(msg)
-                            try:
-                                ZipFile = zipfile.ZipFile(dmarc_zip, 'r')
-                                files = ZipFile.infolist()
-                                # The DMARC report should only contain a single xml file
-                                for f in files:
-                                    dmarc_xml = ZipFile.read(f)
-                                ZipFile.close()
-                            except (zipfile.BadZipfile):
-                                msg = 'Unable to unzip mimepart'
-                                logger.error(msg)
-                                tf = tempfile.mkstemp(prefix='dmarc-',suffix='.gz')
-                                dmarc_zip.seek(0)
-                                tmpf = os.fdopen(tf[0],'w')
-                                tmpf.write(dmarc_zip.getvalue())
-                                tmpf.close()
-                                msg = 'Saved in: {}'.format(tf[1])
-                                logger.debug(msg)
-                                raise CommandError(msg)
-                            dmarc_iszipfile = True
-            else:
-                # We were passed a file name
-                dmarc_file = args[0]
-                if os.path.exists(dmarc_file):
-                    msg = "Found %s" % dmarc_file
-                    logger.debug(msg)
-                else:
-                    msg = "Unable to find DMARC file: %s" % dmarc_file
-                    logger.error(msg)
-                    raise CommandError(msg)
-
-                mode = os.stat(dmarc_file).st_mode
-                if not S_ISREG(mode):
-                    msg = "Unable to read DMARC file: %s" % dmarc_file
-                    logger.error(msg)
-                    raise CommandError(msg)
-                msg = "Importing DMARC: %s" % dmarc_file
-                logger.debug(msg)
-
-                if zipfile.is_zipfile(dmarc_file):
-                    dmarc_iszipfile = True
-                    ZipFile = zipfile.ZipFile(dmarc_file, 'r')
-                    files = ZipFile.infolist()
-                    # The DMARC report should only contain a single xml file
-                    for f in files:
-                        dmarc_xml = ZipFile.read(f)
-                    ZipFile.close()
+        if options['email']:
+            email = options['email'].read()
+            msg = 'Importing from email: {}'.format(email)
+            dmarc_xml = self.get_xml_from_email(email)
+        elif options['xml']:
+            dmarc_xml = options['xml'].read()
+            msg = 'Importing from xml: {}'.format(dmarc_xml)
+            logger.debug(msg)
         else:
             msg = "Check usage, please supply a single DMARC report file or email"
             logger.error(msg)
             raise CommandError(msg)
 
         tz_utc = pytz.timezone('UTC')
-
-        # Open and parse the DMARC report
-        # Exctract the xml report and hold in memory for storage
-        # Reports are fairly small so should not have much impact.
-        report_xml = ''
-        if dmarc_iszipfile:
-            try:
-                msg = "Processing xml: {} {}".format(dmarc_xml, dmarc_file)
-                logger.debug(msg)
-            except:
-                msg = "Processing xml"
-                logger.error(msg)
-            report_xml = dmarc_xml
+        try:
             root = ET.fromstring(dmarc_xml)
-        else:
-            msg = "Processing file: {}".format(dmarc_file)
+        except:
+            msg = "Processing xml failed: {}".format(dmarc_xml)
             logger.error(msg)
-            tree = ET.parse(dmarc_file)
-            report_xml_stringio = StringIO()
-            tree.write(report_xml_stringio, encoding="utf-8", xml_declaration=True)
-            report_xml_stringio.seek(0)
-            report_xml = report_xml_stringio.readlines()
-            root = tree.getroot()
+            return None
 
         # Report metadata
         report_metadata = root.findall('report_metadata')
@@ -174,23 +104,17 @@ class Command(BaseCommand):
         if org_name is None:
             msg = "This DMARC report does not have an org_name"
             logger.error(msg)
-            if not supress_errors:
-                raise CommandError(msg)
         if report_id is None:
-            msg = "This DMARC report for %s does not have a report_id" % org_name
+            msg = "This DMARC report for {} does not have a report_id".format(org_name)
             logger.error(msg)
-            if not supress_errors:
-                raise CommandError(msg)
         try:
             reporter = Reporter.objects.get(org_name=org_name)
         except ObjectDoesNotExist:
             try:
                 reporter = Reporter.objects.create(org_name=org_name, email=email)
             except Error as e:
-                msg = "Unable to create DMARC report for %s: $s" % (org_name, e)
+                msg = "Unable to create DMARC report for {}: {}".format(org_name, e)
                 logger.error(msg)
-                if not supress_errors:
-                    raise CommandError(msg)
 
         # Reporting policy
         policy_published = root.findall('policy_published')
@@ -226,8 +150,6 @@ class Command(BaseCommand):
         except:
             msg = "Unable to understand DMARC reporting dates"
             logger.error(msg)
-            if not supress_errors:
-                raise CommandError(msg)
         report.date_begin = report_date_begin
         report.date_end = report_date_end
         report.policy_domain = policy_domain
@@ -236,14 +158,16 @@ class Command(BaseCommand):
         report.policy_p = policy_p
         report.policy_sp = policy_sp
         report.policy_pct = policy_pct
-        report.report_xml = report_xml
+        report.report_xml = dmarc_xml
         try:
             report.save()
-        except Error as e:
-            msg = "Unable to save the DMARC report header %s: %s" % (report_id, e)
+        except IntegrityError as e:
+            msg = "DMARC duplicate report record: {}".format(e)
             logger.error(msg)
-            if not supress_errors:
-                raise CommandError(msg)
+            return None
+        except Error as e:
+            msg = "Unable to save the DMARC report header {}: {}".format(report_id, e)
+            logger.error(msg)
 
         # Record
         for node in root.findall('record'):
@@ -279,8 +203,6 @@ class Command(BaseCommand):
             if len(source_ip) == 0:
                 msg = "DMARC report record useless without a source ip"
                 logger.error(msg)
-                if not supress_errors:
-                    raise CommandError(msg)
 
             # Create the record
             record = Record()
@@ -293,14 +215,14 @@ class Command(BaseCommand):
             record.policyevaluated_reasontype = policyevaluated_reasontype
             record.policyevaluated_reasoncomment = policyevaluated_reasoncomment
             record.identifier_headerfrom = identifier_headerfrom
-            record.save()
             try:
                 record.save()
-            except Error as e:
-                msg = "Unable to save the DMARC report record: %s" % e
+            except IntegrityError as e:
+                msg = "DMARC duplicate record: {}".format(e)
                 logger.error(msg)
-                if not supress_errors:
-                    raise CommandError(msg)
+            except Error as e:
+                msg = "Unable to save the DMARC report record: {}".format(e)
+                logger.error(msg)
 
             auth_results = node.find('auth_results')
             for resulttype in auth_results:
@@ -319,7 +241,79 @@ class Command(BaseCommand):
                 try:
                     result.save()
                 except Error as e:
-                    msg = "Unable to save the DMARC report result %s for %s: %s" % (resulttype.tag, result_domain, e.message)
+                    msg = "Unable to save the DMARC report result {} for {}: {}".format(resulttype.tag, result_domain, e.message)
                     logger.error(msg)
-                    if not supress_errors:
+
+    def get_xml_from_email(self, email):
+        """Get xml from an email
+        """
+        dmarc_xml = ''
+        logger = logging.getLogger(__name__)
+
+        msg = 'Processing email'
+        logger.debug(msg)
+        try:
+            dmarcemail = message_from_string(email)
+        except:
+            msg = 'Unable to use email'
+            logger.debug(msg)
+            return ''
+
+        for mimepart in dmarcemail.walk():
+            msg = 'Processing content type: {}'.format(mimepart.get_content_type())
+            logger.debug(msg)
+            if mimepart.get_content_type() == 'application/x-zip-compressed' \
+                or mimepart.get_content_type() == 'application/x-zip' \
+                or mimepart.get_content_type() == 'application/zip' \
+                or mimepart.get_content_type() == 'application/octet-stream':
+                dmarc_zip = StringIO()
+                dmarc_zip.write(mimepart.get_payload(decode=True))
+                dmarc_zip.seek(0)
+                if zipfile.is_zipfile(dmarc_zip):
+                    msg = "DMARC is zipfile"
+                    logger.debug(msg)
+                    try:
+                        ZipFile = zipfile.ZipFile(dmarc_zip, 'r')
+                        files = ZipFile.infolist()
+                        # The DMARC report should only contain a single xml file
+                        for f in files:
+                            dmarc_xml = ZipFile.read(f)
+                        ZipFile.close()
+                    except (zipfile.BadZipfile):
+                        msg = 'Unable to unzip mimepart'
+                        logger.error(msg)
+                        tf = tempfile.mkstemp(prefix='dmarc-',suffix='.zip')
+                        dmarc_zip.seek(0)
+                        tmpf = os.fdopen(tf[0],'w')
+                        tmpf.write(dmarc_zip.getvalue())
+                        tmpf.close()
+                        msg = 'Saved in: {}'.format(tf[1])
+                        logger.debug(msg)
                         raise CommandError(msg)
+                else:
+                    msg = "DMARC trying gzip"
+                    logger.debug(msg)
+                    # Reset zip file
+                    dmarc_zip.seek(0)
+                    try:
+                        ZipFile = gzip.GzipFile(None, 'rb', 0, dmarc_zip)
+                        dmarc_xml = ZipFile.read()
+                        ZipFile = None
+                        msg = "DMARC successfully extracted xml from gzip"
+                        logger.debug(msg)
+                    except:
+                        msg = 'Unable to gunzip mimepart'
+                        logger.error(msg)
+                        tf = tempfile.mkstemp(prefix='dmarc-',suffix='.gz')
+                        dmarc_zip.seek(0)
+                        tmpf = os.fdopen(tf[0],'w')
+                        tmpf.write(dmarc_zip.getvalue())
+                        tmpf.close()
+                        msg = 'Saved in: {}'.format(tf[1])
+                        logger.debug(msg)
+                        raise CommandError(msg)
+            else:
+                msg = "DMARC unable to find report in email!"
+                logger.error(msg)
+        return dmarc_xml
+
