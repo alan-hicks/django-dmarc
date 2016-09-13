@@ -314,7 +314,11 @@ class Command(BaseCommand):
                         logger.debug(msg)
                         raise CommandError(msg)
             else:
-                msg = "DMARC unable to find report in email!"
-                logger.error(msg)
+                try:
+                    myname = mimepart.get_filename()
+                except:
+                    myname = 'Not provided'
+                msg = "DMARC Report is not in mimepart: {}".format(myname)
+                logger.debug(msg)
         return dmarc_xml
 
