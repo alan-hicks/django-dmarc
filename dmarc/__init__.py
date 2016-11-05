@@ -9,5 +9,5 @@ DMARC models for managing Aggregate Reports
 http://dmarc.org/resources/specification/
 """
 
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 __author__ = 'Alan Hicks'

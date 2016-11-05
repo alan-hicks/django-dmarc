@@ -12,6 +12,7 @@
 
 <div id="dmarcreport">
     <h2>{% trans "DMARC Report" %}</h2>
+    <p><a href="{% url 'dmarc:dmarc_csv'  %}">Download csv</a></p>
     {% for report in reports.object_list %}
     <h3><span title="{{ report.reporter.email }}">{{ report.reporter }}</span>
         Id: {{ report.report_id }}</h3>
