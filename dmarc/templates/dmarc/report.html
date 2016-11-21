@@ -1,97 +1,207 @@
-{% extends "base.html" %}
+{% extends "admin/base_site.html" %}
 
 {% load i18n %}
 
-{% block meta_title %}{% trans "DMARC Report" %}{% endblock %}
-{% block title %}{% trans "DMARC Report" %}{% endblock %}
-{% block extra_head %}
+{% block meta_title %}{% trans "DMARC aggregate feedback report" %}{% endblock %}
+{% block title %}{% trans "DMARC aggregate feedback report" %}{% endblock %}
+{% block extrahead %}
 <meta name="robots" content="noindex">
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function(event) {
+  // Set default dates
+  dt = new Date();
+  $("#dmarc_date_to"  ).val(dt.getFullYear().toString() + '-' + (dt.getMonth() + 1).toString() + '-' + dt.getDate().toString())
+  $("#dmarc_date_to"  ).datepicker({dateFormat: "yy-mm-dd", autoSize: true});
+  df = new Date(Date.now() - (1000 * 60 * 60 * 24));
+  $("#dmarc_date_from").val(df.getFullYear().toString() + '-' + (df.getMonth() + 1).toString() + '-' + df.getDate().toString())
+  $("#dmarc_date_from").datepicker({dateFormat: "yy-mm-dd", defaultDate: -1, autoSize: true});
+
+  // Toggles filter menu and requests update.
+  function dmarc_update() {
+    // Reset error messages
+    var m = $("#dmarc_form");
+    m.toggle();
+    show_filter = m.css("display");
+    switch (show_filter) {
+      case "none":
+        var dmarc_filters = [];
+        dmarc_download_args = []
+        dmarc_filters.push("DMARC aggregate feedback filter: &nbsp;");
+        dmarc_filters.push("Date: " + $("#dmarc_date_from").val() + "&nbsp;");
+        dmarc_download_args.push("dmarc_date_from=" + $("#dmarc_date_from").val());
+        dmarc_filters.push("&ndash;&nbsp;" + $("#dmarc_date_to").val() + ";&nbsp;");
+        dmarc_download_args.push("dmarc_date_to=" + $("#dmarc_date_to").val());
+        if ($("#dmarc_onlyerror:checkbox:checked").val()){
+          dmarc_filters.push("Only errors; &nbsp;");
+          dmarc_download_args.push("dmarc_onlyerror");
+        }
+        if ($("#dmarc_filter").val()){
+          dmarc_filters.push("Filter: " + $("#dmarc_filter").val() + ";&nbsp;");
+          dmarc_download_args.push("dmarc_filter=" + $("#dmarc_filter").val());
+        }
+
+        $("#dmarc_menu_header").html("");
+        $( "<span/>", {
+          html: dmarc_filters.join( "" )
+        }).appendTo("#dmarc_menu_header");
+
+        $("#dmarc_messages").html('');
+        $("#dmarc_results").html('<tr><td>Fetching results</td></tr>');
+        var download_url = "{% url 'dmarc:dmarc_csv' %}?" + dmarc_download_args.join('&');
+        $("#dmarc_download").html('<a id="dmarc_download" '
+          + 'href="' + download_url + '">Download csv</a>.');
+        $("#dmarc_download").show();
+        dmarc_ajax()
+        break;
+      case "block":
+        $("#dmarc_menu_header").html("DMARC aggregate feedback report filter");
+        $("#dmarc_download").hide();
+        break;
+    }
+  }
+
+  // Adds dmarc_update() to filter menu header
+  $( "#dmarc_menu_header" ).click( function() {
+    dmarc_update()
+  });
+
+  // Adds dmarc_update() to form and prevents form submission
+  $( "#dmarc_form" ).submit(function( event ) {
+    dmarc_update();
+    event.preventDefault();
+  });
+
+  // Main ajax call to request and populate report
+  function dmarc_ajax() {
+    var
+        DMARC_ORG_NAME = 0,
+        DMARC_EMAIL = 1,
+        DMARC_DATE_BEGIN = 2,
+        DMARC_DATE_END = 3,
+        DMARC_POLICY_DOMAIN = 4,
+        DMARC_POLICY_ADKIM = 5,
+        DMARC_POLICY_ASPF = 6,
+        DMARC_POLICY_P = 7,
+        DMARC_POLICY_SP = 8,
+        DMARC_POLICY_PCT = 9,
+        DMARC_REPORT_ID = 10,
+        DMARC_SOURCE_IP = 11,
+        DMARC_RECORDCOUNT = 12,
+        DMARC_POLICYEVALUATED_DISPOSITION = 13,
+        DMARC_POLICYEVALUATED_DKIM = 14,
+        DMARC_POLICYEVALUATED_SPF = 15,
+        DMARC_POLICYEVALUATED_REASONTYPE = 16,
+        DMARC_POLICYEVALUATED_REASONCOMMENT = 17,
+        DMARC_IDENTIFIER_HEADERFROM = 18,
+        DMARC_SPF_RECORD_TYPE = 19,
+        DMARC_SPF_DOMAIN = 20,
+        DMARC_SPF_RESULT = 21,
+        DMARC_DKIM_RECORD_TYPE = 22,
+        DMARC_DKIM_DOMAIN = 23,
+        DMARC_DKIM_RESULT = 24;
+    $.ajax({
+    url: "{% url 'dmarc:dmarc_json' %}",
+    async: true,
+    dataType: "json",
+    data: {
+      csrf: "{{ csrf_token }}",
+      dmarc_date_from: $("#dmarc_date_from").val(),
+      dmarc_date_to: $("#dmarc_date_to").val(),
+      dmarc_onlyerror: $("#dmarc_onlyerror:checkbox:checked").val(),
+      dmarc_filter: $("#dmarc_filter").val()
+    },
+    success: function ( result ) {
+        var r = new Array(), j = -1;
+        // Start with a header
+        DMARC_REPORT_ID = 10,
+        r[++j] = '<thead><tr>';
+        r[++j] = '<th>Domain</th>';
+        r[++j] = '<th title="DKIM alignment">d</th>';
+        r[++j] = '<th title="SPF alignment">s</th>';
+        r[++j] = '<th title="Requested Mail Receiver policy">p</th>';
+        r[++j] = '<th title="Percentage of messages from the Domain Owner&quot;s mail stream to which the DMARC policy is to be applied">pct</th>';
+        r[++j] = '<th>source</th>';
+        r[++j] = '<th>count</th>';
+        r[++j] = '<th>disposition</th>';
+        r[++j] = '<th>dkim</th>';
+        r[++j] = '<th>spf</th>';
+        r[++j] = '<th>reason type</th>';
+        r[++j] = '<th>comment</th>';
+        r[++j] = '</tr></thead>';
+        r[++j] = '<tbody>';
+        for (var key=0, size=result.length; key<size; key++){
+            r[++j] ='<tr>';
+            r[++j] = '<td>' + result[key][DMARC_POLICY_DOMAIN] + '</td>';
+            r[++j] = '<td>' + result[key][DMARC_POLICY_ADKIM] + '</td>';
+            r[++j] = '<td>' + result[key][DMARC_POLICY_ASPF] + '</td>';
+            r[++j] = '<td>' + result[key][DMARC_POLICY_P] + '</td>';
+            r[++j] = '<td>' + result[key][DMARC_POLICY_PCT] + '</td>';
+            r[++j] = '<td>' + result[key][DMARC_SOURCE_IP] + '</td>';
+            r[++j] = '<td>' + result[key][DMARC_RECORDCOUNT] + '</td>';
+            r[++j] = '<td>' + result[key][DMARC_POLICYEVALUATED_DISPOSITION] + '</td>';
+            r[++j] = '<td>' + result[key][DMARC_POLICYEVALUATED_DKIM] + '</td>';
+            r[++j] = '<td>' + result[key][DMARC_POLICYEVALUATED_SPF] + '</td>';
+            r[++j] = '<td>' + result[key][DMARC_POLICYEVALUATED_REASONTYPE] + '</td>';
+            if (result[key][DMARC_POLICYEVALUATED_REASONCOMMENT]) {
+                r[++j] = '<td><span title="' + result[key][DMARC_POLICYEVALUATED_REASONCOMMENT] + '">...</span></td>';
+            } else {
+                r[++j] = '<td>&nbsp;</td>';
+            }
+            r[++j] = '</tr>';
+        }
+        r[++j] = '</tbody>';
+        $('#dmarc_results').html(r.join(''));
+    },
+    error: function ( jqXHR, textStatus, errorThrown ) {
+      $("#dmarc_messages").html(
+        '<div class="alert alert-warning">'
+        + '<a class="close" data-dismiss="alert">×</a>'
+        + '<span class="glyphicon glyphicon-warning-sign"></span>'
+        + textStatus + ": " + errorThrown
+        + '</div>'
+      );
+    },
+    });
+  }
+    dmarc_update();
+});
+</script>
+<style>
+  #dmarc_messages {
+  }
+</style>
 {% endblock %}
 
-{% block main %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans "Home" %}</a> &rsaquo;
+    <a href="{% url 'admin:index' %}dmarc">DMARC</a> &rsaquo;
+    DMARC feedback reports
+</div>
+{% endblock %}
 
+{% block content %}
 <div id="dmarcreport">
-    <h2>{% trans "DMARC Report" %}</h2>
-    <p><a href="{% url 'dmarc:dmarc_csv'  %}">Download csv</a></p>
-    {% for report in reports.object_list %}
-    <h3><span title="{{ report.reporter.email }}">{{ report.reporter }}</span>
-        Id: {{ report.report_id }}</h3>
-    <p>{% trans "Reporting period" %}: {{ report.date_begin }} - {{ report.date_end }}</p>
-    <div>
-        <span class="label label-info" title='{% trans "Domain policy" %}'>domain: {{ report.policy_domain }}</span>
-        <span class="label label-info" title='{% trans "DKIM alignment mode" %}'>adkim: {{ report.policy_adkim }}</span>
-        <span class="label label-info" title='{% trans "SPF alignment mode" %}'>aspf: {{ report.policy_aspf }}</span>
-        <span class="label label-info" title='{% trans "Requested handling policy" %}'>p: {{ report.policy_p }}</span>
-        <span class="label label-info" title='{% trans "Requested handling policy for subdomains" %}'>sp: {{ report.policy_sp }}</span>
-        <span class="label label-info" title='{% trans "Sampling rate" %}'>pct: {{ report.policy_pct }}</span>
+    <h1>{% trans "DMARC aggregate feedback report" %}</h1>
+    <p id="dmarc_messages"></p>
+    <div id="dmarc_menu">
+    <h2 id="dmarc_menu_header">Report filter</h2>
+    <div id="dmarc_download">&nbsp;</div>
+    <form id="dmarc_form">
+      <ul>
+        <li>Period: <input id="dmarc_date_from" name="dmarc_date_from" type="text"></input>/<input id="dmarc_date_to" name="dmarc_date_to" type="text"></input></li>
+        <li>Only errors <input id="dmarc_onlyerror" name="dmarc_onlyerror" type="checkbox"></input></li>
+        <li>filter source ip address <input id="dmarc_filter" name="dmarc_filter"></input></li>
+        <li><button>go</button></li>
+      </ul>
+    </form>
     </div>
-        {% for record in report.records.all %}
-    <div>
-        <h4>Source ip: {{ record.source_ip }} <span class="badge badge-primary" title='{% trans "Record count" %}'>{{ record.recordcount }}</span></h4>
-        <div>
-            <span class="label label-info" title='{% trans "" %}Disposition'>disp: {{ record.policyevaluated_disposition }}</span>
-            <span
-                {% if record.policyevaluated_dkim == 'pass' %} class="label label-success"
-                {% elif record.policyevaluated_dkim == 'fail' %} class="label label-danger"
-                {% else %} class="label label-default"
-                {% endif %}
-                title='dkim'>dkim: {{ record.policyevaluated_dkim }}</span>
-            <span
-                {% if record.policyevaluated_spf == 'pass' %} class="label label-success"
-                {% elif record.policyevaluated_spf == 'fail' %} class="label label-danger"
-                {% else %} class="label label-default"
-                {% endif %}
-                title='spf'>spf: {{ record.policyevaluated_spf }}</span>
-            <span class="label label-info" title='reason'>{{ record.policyevaluated_reasontype }}</span>
-            <span class="label label-info" title='comment'>{{ record.policyevaluated_reasoncomment }}</span>
-            <span class="label label-info" title='Header from'>{{ record.identifier_headerfrom }}</span>
-            {% for result in record.results.all %}
-            <span
-                {% if result.result == 'pass' %} class="label label-success"
-                {% elif result.result == 'softfail' %} class="label label-warning"
-                {% elif result.result == 'fail' %} class="label label-danger"
-                {% elif result.result == 'permerror' %} class="label label-danger"
-                {% else %} class="label label-default"
-                {% endif %}>{{ result.record_type }} {{ result.domain }} {{ result.result }}</span>
-            {% endfor %}
-        </div>
+    <div><table id="dmarc_results" style="border-style:solid;border-width:1px;"></table>
     </div>
-        {% endfor %}
-    {% endfor %}
 </div>
 
-{% if reports.has_other_pages %}
-<nav>
-  <ul class="pagination">
-    <li class="prev previous{% if not reports.has_previous %} disabled{% endif %}">
-        <a{% if reports.has_previous %} href="?page={{ reports.previous_page_number }}"{% endif %}>&larr;</a>
-    </li>
-{% for page_range in reports.paginator.page_range %}
-    {% if reports.paginator.page_range|length > 10 %}
-    {% if reports.number < page_range|add:"6" and reports.number|add:"6" > page_range %}
-    <li {% if reports.number == page_range %} class="active"{% endif %}><a
-        {% if reports.number == page_range %}
-        href="#"
-        {% else %}
-        href="?page={{ page_range }}"
-        {% endif %}
-        >{{ page_range }}</a></li>
-        {% endif %}
-    {% else %}
-    <li {% if reports.number == page_range %} class="active"{% endif %}><a
-        {% if reports.number == page_range %}
-        href="#"
-        {% else %}
-        href="?page={{ page_range }}"
-        {% endif %}
-    >{{ page_range }}</a></li>
-    {% endif %}
-{% endfor %}
-    <li class="next{% if not reports.has_next %} disabled{% endif %}">
-        <a{% if reports.has_next %} href="?page={{ reports.next_page_number }}"{% endif %}>&rarr;</a>
-    </li>
-  </ul>
-</nav>
-{% endif %}
 
 {% endblock %}

@@ -12,7 +12,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-dmarc',
-    version='0.3.3',
+    version='0.4.0',
     packages=['dmarc'],
     include_package_data=True,
     license='BSD License',

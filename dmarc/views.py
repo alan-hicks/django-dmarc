@@ -9,19 +9,51 @@ http://dmarc.org/resources/specification/
 """
 import csv
 import datetime
-
-from StringIO import StringIO
+import logging
 
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core import serializers
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import connection
-from django.http import StreamingHttpResponse
+from django.http import JsonResponse, StreamingHttpResponse
 from django.shortcuts import render
 
 from dmarc.models import Report
 
-def _sql():
-    return """
+class Echo(object):
+    """An object that implements just the write method of the file-like
+    interface for csv.writer.
+    """
+    def write(self, value):
+        """Write the value by returning it, instead of storing in a buffer."""
+        return value
+
+def _sql_cursor(request_args):
+    """Returns a cursor according to users request"""
+    sql_where = []
+    sql_params = []
+    if 'dmarc_date_from' in request_args:
+        val = request_args['dmarc_date_from']
+        sql_where.append('dmarc_report.date_end >= %s')
+        sql_params.append(val)
+    if 'dmarc_date_to' in request_args:
+        val = request_args['dmarc_date_to']
+        sql_where.append('dmarc_report.date_begin <= %s')
+        sql_params.append(val)
+    if 'dmarc_onlyerror' in request_args:
+        val = '%' + request_args['dmarc_filter'] + '%'
+        s = '('
+        s = s + "dmarc_record.policyevaluated_dkim = 'fail'"
+        s = s + " OR "
+        s = s + "dmarc_record.policyevaluated_spf = 'fail'"
+        s = s + ')'
+        sql_where.append(s)
+    if 'dmarc_filter' in request_args:
+        val = request_args['dmarc_filter'] + '%'
+        sql_where.append('dmarc_record.source_ip LIKE %s')
+        sql_params.append(val)
+
+    sql = """
 SELECT
   dmarc_reporter.org_name,
   dmarc_reporter.email,
@@ -59,8 +91,26 @@ AND spf_dmarc_result.record_type = 'spf'
 LEFT OUTER JOIN dmarc_result AS dkim_dmarc_result
 ON dkim_dmarc_result.record_id = dmarc_record.id
 AND dkim_dmarc_result.record_type = 'dkim'
-;
     """
+
+    if sql_where:
+        sql = sql + " WHERE " + "\nAND ".join(sql_where)
+
+    msg = "SQL: {}".format(sql)
+    logger = logging.getLogger(__name__)
+    logger.debug(msg)
+    cursor = connection.cursor()
+    cursor.execute(sql, sql_params)
+
+    return cursor
+
+@staff_member_required
+def dmarc_index(request):
+
+    context = {
+        "reports": 'TODO',
+    }
+    return render(request, 'dmarc/report.html', context)
 
 @staff_member_required
 def dmarc_report(request):
@@ -92,30 +142,35 @@ def dmarc_csv(request):
     # Inspired by https://code.djangoproject.com/ticket/21179
     def stream():
         """Generator function to yield cursor rows."""
-        buffer_ = StringIO()
-        writer = csv.writer(buffer_)
+        pseudo_buffer = Echo()
+        writer = csv.writer(pseudo_buffer)
         columns = True
         for row in cursor.fetchall():
+            data = ''
             if columns:
                 # Write the columns if this is the first row
                 columns = [col[0] for col in cursor.description]
-                writer.writerow(columns)
+                data = writer.writerow(columns)
                 columns = False
-            writer.writerow(row)
-            buffer_.seek(0)
-            data = buffer_.read()
-            buffer_.seek(0)
-            buffer_.truncate()
+            data = data + writer.writerow(row)
             yield data
 
     dt = datetime.datetime.now()
     cd = 'attachment; filename="dmarc-{}.csv"'.format(dt.strftime('%Y-%m-%d-%H%M%S'))
 
-    sql = _sql()
-    cursor = connection.cursor()
-    cursor.execute(sql)
+    cursor = _sql_cursor(request.GET)
 
     response = StreamingHttpResponse(stream(), content_type="text/csv")
     response['Content-Disposition'] = cd
 
     return response
+
+@staff_member_required
+def dmarc_json(request):
+    """Export dmarc data as json"""
+
+    cursor = _sql_cursor(request.GET)
+
+    data = response = JsonResponse(cursor.fetchall(), safe=False)
+    return data
+

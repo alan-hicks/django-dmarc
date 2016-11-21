@@ -40,7 +40,7 @@ class Report(models.Model):
 
 class Record(models.Model):
     report = models.ForeignKey(Report, related_name='records')
-    source_ip = models.GenericIPAddressField()
+    source_ip = models.CharField(max_length=39)
     recordcount = models.IntegerField()
     policyevaluated_disposition = models.CharField(max_length=10)
     policyevaluated_dkim = models.CharField(max_length=4)

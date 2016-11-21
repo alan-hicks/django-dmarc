@@ -12,6 +12,7 @@ from dmarc import views
 
 app_name = 'dmarc'
 urlpatterns = [
-    url("^report/$", views.dmarc_report),
-    url("^csv/$", views.dmarc_csv, name='dmarc_csv'),
+    url("^report/$", views.dmarc_report, name='dmarc_report'),
+    url("^report/csv/$", views.dmarc_csv, name='dmarc_csv'),
+    url("^report/json/$", views.dmarc_json, name='dmarc_json'),
 ]

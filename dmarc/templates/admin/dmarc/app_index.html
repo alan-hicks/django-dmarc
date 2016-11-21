@@ -1,0 +1,21 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block meta_title %}{% trans "DMARC aggregate feedback report" %}{% endblock %}
+{% block title %}{% trans "DMARC aggregate feedback report" %}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans "Home" %}</a> &rsaquo;
+    {% for app in app_list %}
+    <a href="{{ app.app_url }}">{{ title }}</a>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block content %}
+<p>Welcome to DMARC aggregate feedback reports for Django</p>
+<p><a href="{% url 'dmarc:dmarc_report' %}">DMARC feedback reports</a></p>
+
+{% endblock %}
+
