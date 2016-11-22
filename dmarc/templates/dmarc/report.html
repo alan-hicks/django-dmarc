@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
         // Start with a header
         DMARC_REPORT_ID = 10,
         r[++j] = '<thead><tr>';
-        r[++j] = '<th>Domain</th>';
+        r[++j] = '<th>Organisation</th>';
         r[++j] = '<th title="DKIM alignment">d</th>';
         r[++j] = '<th title="SPF alignment">s</th>';
         r[++j] = '<th title="Requested Mail Receiver policy">p</th>';
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
         r[++j] = '<tbody>';
         for (var key=0, size=result.length; key<size; key++){
             r[++j] ='<tr>';
-            r[++j] = '<td>' + result[key][DMARC_POLICY_DOMAIN] + '</td>';
+            r[++j] = '<td>' + result[key][DMARC_ORG_NAME] + '</td>';
             r[++j] = '<td>' + result[key][DMARC_POLICY_ADKIM] + '</td>';
             r[++j] = '<td>' + result[key][DMARC_POLICY_ASPF] + '</td>';
             r[++j] = '<td>' + result[key][DMARC_POLICY_P] + '</td>';

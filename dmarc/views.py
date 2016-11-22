@@ -50,7 +50,13 @@ def _sql_cursor(request_args):
         sql_where.append(s)
     if 'dmarc_filter' in request_args:
         val = request_args['dmarc_filter'] + '%'
-        sql_where.append('dmarc_record.source_ip LIKE %s')
+        s = '('
+        s = s + "lower(dmarc_reporter.org_name) LIKE lower(%s)"
+        s = s + " OR "
+        s = s + "dmarc_record.source_ip LIKE %s"
+        s = s + ')'
+        sql_where.append(s)
+        sql_params.append(val)
         sql_params.append(val)
 
     sql = """
