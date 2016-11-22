@@ -25,20 +25,29 @@ Quick start
 
 1. Install the app
 
-2. Add "dmarc" to your INSTALLED_APPS setting like this::
+2. Add "dmarc" to your INSTALLED_APPS setting::
 
     INSTALLED_APPS = (
         ...
         'dmarc',
     )
 
-3. Run 'python manage.py migrate' to create the database models.
+3. Add dmarc.urls to your urls::
 
-4. import a report with::
+    from dmarc import urls as dmarc_urls
 
-    python manage.py importdmarcreport
+    urlpatterns = [
+        ...
+        url(r"^dmarc/", include(dmarc_urls)),
+    ]
 
-You can choose to import an xml or zip file, alternatively with "-" you can pipe an email with the zipped report and it will do the right thing.
+4. Run 'python manage.py migrate' to create the database models.
+
+5. Import a report with::
+
+    python manage.py importdmarcreport --email
+
+6. See your aggregated feedback reports from the Admin page at admin/dmarc
 
 Copyright
 =========
@@ -53,5 +62,7 @@ License
 This documentation is licensed under the Creative Commons Attribution 4.0
 International License. To view a copy of this license, visit
 http://creativecommons.org/licenses/by/4.0/.
+
+The software is licensed under the BSD two clause license.
 
 .. include:: ../LICENSE
