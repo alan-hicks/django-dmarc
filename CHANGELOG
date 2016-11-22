@@ -10,7 +10,7 @@ Create prototype admin dashboard
 Create admin Report model editing
 Update report to use ajax load
 Create Download report option
-Filter report
+Database agnostic filter
 Use base admin templates
 
 Version 0.3.3 (2016-11-05)
