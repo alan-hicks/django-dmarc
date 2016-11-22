@@ -40,15 +40,18 @@ def _sql_cursor(request_args):
         val = request_args['dmarc_date_to']
         sql_where.append('dmarc_report.date_begin <= %s')
         sql_params.append(val)
+    if 'dmarc_disposition' in request_args and request_args['dmarc_disposition']:
+        val = request_args['dmarc_disposition']
+        sql_where.append('dmarc_record.policyevaluated_disposition = %s')
+        sql_params.append(val)
     if 'dmarc_onlyerror' in request_args:
-        val = '%' + request_args['dmarc_filter'] + '%'
         s = '('
         s = s + "dmarc_record.policyevaluated_dkim = 'fail'"
         s = s + " OR "
         s = s + "dmarc_record.policyevaluated_spf = 'fail'"
         s = s + ')'
         sql_where.append(s)
-    if 'dmarc_filter' in request_args:
+    if 'dmarc_filter' in request_args and request_args['dmarc_filter']:
         val = request_args['dmarc_filter'] + '%'
         s = '('
         s = s + "lower(dmarc_reporter.org_name) LIKE lower(%s)"

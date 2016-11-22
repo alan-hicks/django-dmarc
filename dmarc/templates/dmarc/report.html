@@ -38,6 +38,10 @@ document.addEventListener('DOMContentLoaded', function(event) {
           dmarc_filters.push("Only errors; &nbsp;");
           dmarc_download_args.push("dmarc_onlyerror");
         }
+        if ($("#dmarc_disposition").val()){
+          dmarc_filters.push("Disposition: " + $("#dmarc_disposition").val() + ";&nbsp;");
+          dmarc_download_args.push("dmarc_disposition=" + $("#dmarc_disposition").val());
+        }
         if ($("#dmarc_filter").val()){
           dmarc_filters.push("Filter: " + $("#dmarc_filter").val() + ";&nbsp;");
           dmarc_download_args.push("dmarc_filter=" + $("#dmarc_filter").val());
@@ -111,6 +115,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
       dmarc_date_from: $("#dmarc_date_from").val(),
       dmarc_date_to: $("#dmarc_date_to").val(),
       dmarc_onlyerror: $("#dmarc_onlyerror:checkbox:checked").val(),
+      dmarc_disposition: $("#dmarc_disposition").val(),
       dmarc_filter: $("#dmarc_filter").val()
     },
     success: function ( result ) {
@@ -195,6 +200,11 @@ document.addEventListener('DOMContentLoaded', function(event) {
         <li>Period: <input id="dmarc_date_from" name="dmarc_date_from" type="text"></input>/<input id="dmarc_date_to" name="dmarc_date_to" type="text"></input></li>
         <li>Only errors <input id="dmarc_onlyerror" name="dmarc_onlyerror" type="checkbox"></input></li>
         <li>filter source ip address <input id="dmarc_filter" name="dmarc_filter"></input></li>
+        <li>Disposition <select id="dmarc_disposition">
+          <option value="">Any</option>
+          <option value="quarantine">Quarantine</option>
+          <option value="reject">Reject</option>
+        </select></li>
         <li><button>go</button></li>
       </ul>
     </form>

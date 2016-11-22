@@ -1,3 +1,10 @@
+Version 0.4.2 (2016-11-22)
+---------------------------
+
+Add sql filtering checks
+Add filtering by Disposition suggestion from Edward Newman
+
+Show and filter by organisation name
 Version 0.4.1 (2016-11-22)
 ---------------------------
 
