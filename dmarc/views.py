@@ -89,7 +89,7 @@ SELECT
   dkim_dmarc_result.record_type AS dkim_record_type,
   dkim_dmarc_result.domain AS dkim_domain,
   dkim_dmarc_result.result AS dkim_result
-FROM public.dmarc_reporter
+FROM dmarc_reporter
 INNER JOIN dmarc_report
 ON dmarc_report.reporter_id = dmarc_reporter.id
 INNER JOIN  dmarc_record
