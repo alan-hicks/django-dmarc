@@ -1,3 +1,8 @@
+Version 0.4.4 (2016-11-22)
+---------------------------
+
+Fix SQL typo (remove public.) and add back domain (Edward Newman)
+
 Version 0.4.3 (2016-11-22)
 ---------------------------
 
