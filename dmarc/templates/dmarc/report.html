@@ -174,10 +174,6 @@ document.addEventListener('DOMContentLoaded', function(event) {
     dmarc_update();
 });
 </script>
-<style>
-  #dmarc_messages {
-  }
-</style>
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -199,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
       <ul>
         <li>Period: <input id="dmarc_date_from" name="dmarc_date_from" type="text"></input>/<input id="dmarc_date_to" name="dmarc_date_to" type="text"></input></li>
         <li>Only errors <input id="dmarc_onlyerror" name="dmarc_onlyerror" type="checkbox"></input></li>
-        <li>filter source ip address <input id="dmarc_filter" name="dmarc_filter"></input></li>
+        <li>Filter source organisation / ip address <input id="dmarc_filter" name="dmarc_filter"></input></li>
         <li>Disposition <select id="dmarc_disposition">
           <option value="">Any</option>
           <option value="quarantine">Quarantine</option>
@@ -212,6 +208,4 @@ document.addEventListener('DOMContentLoaded', function(event) {
     <div><table id="dmarc_results" style="border-style:solid;border-width:1px;"></table>
     </div>
 </div>
-
-
 {% endblock %}
