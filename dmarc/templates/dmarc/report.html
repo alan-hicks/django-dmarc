@@ -9,6 +9,13 @@
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<style>
+span.invalid {
+    background-color: red;
+}
+span.valid {
+}
+</style>
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function(event) {
   // Set default dates
@@ -65,6 +72,14 @@ document.addEventListener('DOMContentLoaded', function(event) {
         $("#dmarc_download").hide();
         break;
     }
+  }
+
+  function colour_code(value, testvalue) {
+     if (value == testvalue) {
+        return "<span class=\"valid\">" + value + "</span>";
+     } else {
+        return "<span class=\"invalid\">" + value + "</span>";
+     }
   }
 
   // Adds dmarc_update() to filter menu header
@@ -124,7 +139,6 @@ document.addEventListener('DOMContentLoaded', function(event) {
         DMARC_REPORT_ID = 10,
         r[++j] = '<thead><tr>';
         r[++j] = '<th>Organisation</th>';
-        r[++j] = '<th>Domain</th>';
         r[++j] = '<th title="DKIM alignment">d</th>';
         r[++j] = '<th title="SPF alignment">s</th>';
         r[++j] = '<th title="Requested Mail Receiver policy">p</th>';
@@ -132,8 +146,11 @@ document.addEventListener('DOMContentLoaded', function(event) {
         r[++j] = '<th>source</th>';
         r[++j] = '<th>count</th>';
         r[++j] = '<th>disposition</th>';
+        r[++j] = '<th>header-from</th>';
         r[++j] = '<th>dkim</th>';
+        r[++j] = '<th>dkim-domain</th>';
         r[++j] = '<th>spf</th>';
+        r[++j] = '<th>spf-domain</th>';
         r[++j] = '<th>reason type</th>';
         r[++j] = '<th>comment</th>';
         r[++j] = '</tr></thead>';
@@ -141,16 +158,18 @@ document.addEventListener('DOMContentLoaded', function(event) {
         for (var key=0, size=result.length; key<size; key++){
             r[++j] ='<tr>';
             r[++j] = '<td>' + result[key][DMARC_ORG_NAME] + '</td>';
-            r[++j] = '<td>' + result[key][DMARC_POLICY_DOMAIN] + '</td>';
             r[++j] = '<td>' + result[key][DMARC_POLICY_ADKIM] + '</td>';
             r[++j] = '<td>' + result[key][DMARC_POLICY_ASPF] + '</td>';
             r[++j] = '<td>' + result[key][DMARC_POLICY_P] + '</td>';
             r[++j] = '<td>' + result[key][DMARC_POLICY_PCT] + '</td>';
             r[++j] = '<td>' + result[key][DMARC_SOURCE_IP] + '</td>';
             r[++j] = '<td>' + result[key][DMARC_RECORDCOUNT] + '</td>';
-            r[++j] = '<td>' + result[key][DMARC_POLICYEVALUATED_DISPOSITION] + '</td>';
-            r[++j] = '<td>' + result[key][DMARC_POLICYEVALUATED_DKIM] + '</td>';
-            r[++j] = '<td>' + result[key][DMARC_POLICYEVALUATED_SPF] + '</td>';
+            r[++j] = '<td>' + colour_code(result[key][DMARC_POLICYEVALUATED_DISPOSITION], 'none') + '</td>';
+            r[++j] = '<td>' + result[key][DMARC_IDENTIFIER_HEADERFROM] + '</td>';
+            r[++j] = '<td>' + colour_code(result[key][DMARC_POLICYEVALUATED_DKIM], 'pass') + '</td>';
+            r[++j] = '<td>' + result[key][DMARC_DKIM_DOMAIN] + '</td>';
+            r[++j] = '<td>' + colour_code(result[key][DMARC_POLICYEVALUATED_SPF], 'pass') + '</td>';
+            r[++j] = '<td>' + result[key][DMARC_SPF_DOMAIN] + '</td>';
             r[++j] = '<td>' + result[key][DMARC_POLICYEVALUATED_REASONTYPE] + '</td>';
             if (result[key][DMARC_POLICYEVALUATED_REASONCOMMENT]) {
                 r[++j] = '<td><span title="' + result[key][DMARC_POLICYEVALUATED_REASONCOMMENT] + '">...</span></td>';
