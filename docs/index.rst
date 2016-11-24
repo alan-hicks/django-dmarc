@@ -9,7 +9,7 @@ Django DMARC
 
 **Making it easier to manage DMARC reports**
 
-Designed to quickly and easily import DMARC reports.
+Designed to quickly and easily import DMARC aggregate feedback reports.
 
 Contents
 ========
@@ -55,6 +55,19 @@ Copyright
 Django DMARC and this documentation is
 Copyright (c) 2015-2016, Persistent Objects Ltd.
 All rights reserved.
+
+Contributors
+============
+
+This list is not complete and not in any useful order, but I would
+like to thank everybody who contributed in any way, with code, hints,
+bug reports, ideas, moral support, endorsement, or even complaints...
+You have made django-dmarc what it is today.
+
+| Thank you,
+| Alan Hicks
+
+.. include:: ../AUTHORS
 
 License
 =======
