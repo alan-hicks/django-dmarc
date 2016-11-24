@@ -35,7 +35,7 @@ def _sql_cursor(request_args):
     if 'dmarc_date_from' in request_args:
         val = request_args['dmarc_date_from']
         try:
-            val = datetime.strptime(val, '%Y-%m-%d')
+            val = datetime.datetime.strptime(val, '%Y-%m-%d')
         except:
             val = datetime.date.today()
         sql_where.append('dmarc_report.date_begin >= %s')
@@ -43,7 +43,7 @@ def _sql_cursor(request_args):
     if 'dmarc_date_to' in request_args:
         val = request_args['dmarc_date_to']
         try:
-            val = datetime.strptime(val, '%Y-%m-%d')
+            val = datetime.datetime.strptime(val, '%Y-%m-%d')
         except:
             val = datetime.date.today()
         td = datetime.timedelta(days=1)
