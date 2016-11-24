@@ -34,11 +34,21 @@ def _sql_cursor(request_args):
     sql_params = []
     if 'dmarc_date_from' in request_args:
         val = request_args['dmarc_date_from']
-        sql_where.append('dmarc_report.date_end >= %s')
+        try:
+            val = datetime.strptime(val, '%Y-%m-%d')
+        except:
+            val = datetime.date.today()
+        sql_where.append('dmarc_report.date_begin >= %s')
         sql_params.append(val)
     if 'dmarc_date_to' in request_args:
         val = request_args['dmarc_date_to']
-        sql_where.append('dmarc_report.date_begin <= %s')
+        try:
+            val = datetime.strptime(val, '%Y-%m-%d')
+        except:
+            val = datetime.date.today()
+        td = datetime.timedelta(days=1)
+        val = val + td
+        sql_where.append('dmarc_report.date_end < %s')
         sql_params.append(val)
     if 'dmarc_disposition' in request_args and request_args['dmarc_disposition']:
         val = request_args['dmarc_disposition']
