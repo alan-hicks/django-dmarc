@@ -115,9 +115,6 @@ AND dkim_dmarc_result.record_type = 'dkim'
     if sql_where:
         sql = sql + " WHERE " + "\nAND ".join(sql_where)
 
-    msg = "SQL: {}".format(sql)
-    logger = logging.getLogger(__name__)
-    logger.debug(msg)
     cursor = connection.cursor()
     cursor.execute(sql, sql_params)
 
