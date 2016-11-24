@@ -31,6 +31,7 @@ class Echo(object):
 def _sql_cursor(request_args):
     """Returns a cursor according to users request"""
     sql_where = []
+    sql_orderby = []
     sql_params = []
     if 'dmarc_date_from' in request_args:
         val = request_args['dmarc_date_from']
@@ -114,6 +115,11 @@ AND dkim_dmarc_result.record_type = 'dkim'
 
     if sql_where:
         sql = sql + " WHERE " + "\nAND ".join(sql_where)
+
+    sql_orderby.append('LOWER(dmarc_reporter.org_name)')
+    sql_orderby.append('dmarc_report.date_begin')
+    sql_orderby.append('dmarc_record.source_ip')
+    sql = sql + "\nORDER BY " + ", ".join(sql_orderby)
 
     cursor = connection.cursor()
     cursor.execute(sql, sql_params)
