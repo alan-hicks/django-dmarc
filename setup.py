@@ -35,4 +35,5 @@ setup(
         'Topic :: Office/Business',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
+    keywords='dmarc, email, spf, dkim',
 )
