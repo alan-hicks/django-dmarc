@@ -11,3 +11,5 @@ http://dmarc.org/resources/specification/
 
 __version__ = '0.4.6'
 __author__ = 'Alan Hicks'
+
+default_app_config = 'dmarc.apps.DmarcConfig'
