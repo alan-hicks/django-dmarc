@@ -15,6 +15,10 @@ span.invalid {
 }
 span.valid {
 }
+#dmarc-tab-report {
+    padding-left:0;
+    padding-right:0;
+}
 </style>
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function(event) {
@@ -26,6 +30,9 @@ document.addEventListener('DOMContentLoaded', function(event) {
   $("#dmarc_date_from").val(df.getFullYear().toString() + '-' + (df.getMonth() + 1).toString() + '-' + df.getDate().toString())
   $("#dmarc_date_from").datepicker({dateFormat: "yy-mm-dd", defaultDate: -1, autoSize: true});
 
+  $( function() {
+    $( "#dmarc-tabs" ).tabs();
+  } );
   // Toggles filter menu and requests update.
   function dmarc_update() {
     // Reset error messages
@@ -226,7 +233,187 @@ document.addEventListener('DOMContentLoaded', function(event) {
       </ul>
     </form>
     </div>
-    <div><table id="dmarc_results" style="border-style:solid;border-width:1px;"></table>
+    <div id="dmarc-tabs">
+        <ul>
+            <li><a href="#dmarc-tab-report">Report</a></li>
+            <!--li><a href="#dmarc-tab-faq">FAQ</a></li-->
+            <li><a href="#dmarc-tab-glossary">Glossary</a></li>
+        </ul>
+        <div id="dmarc-tab-report">
+            <table id="dmarc_results" style="border-style:solid;border-width:1px;"></table>
+        </div>
+        <!--div id="dmarc-tab-faq">
+            <p>faq</p>
+            <p></p>
+        </div-->
+        <div id="dmarc-tab-glossary">
+        <dl>
+            <dt>DMARC</dt>
+            <dd>Domain-based Message Authentication, Reporting, and Conformance
+   (DMARC) is a scalable mechanism by which a mail-originating
+   organization can express domain-level policies and preferences for
+   message validation, disposition, and reporting, that a mail-receiving
+   organization can use to improve mail handling.</dd>
+            <!-- This list should be in alphabetical order -->
+            <dt>adkim</dt>
+            <dd>Indicates whether
+      strict or relaxed DKIM Identifier Alignment mode is required by
+      the Domain Owner.  Valid values are as follows:
+      <ul><li>r: relaxed mode (default)</li>
+      <li>s: strict mode</li></ul></dd>
+            <dt>AFRF</dt>
+            <dd>Authentication Failure Reporting Format</dd>
+            <dt>aspf</dt>
+            <dd>Indicates whether
+      strict or relaxed SPF Identifier Alignment mode is required by the
+      Domain Owner.  Valid values are as follows:
+      <ul><li>r: relaxed mode (default)</li>
+      <li>s: strict mode</li></ul></dd>
+            <dt>Authenticated Identifiers</dt>
+            <dd>Domain-level identifiers that are
+      validated using authentication technologies are referred to as
+      "Authenticated Identifiers".</dd>
+            <dt>Author Domain</dt>
+            <dd>The domain name of the apparent author, as extracted
+      from the RFC5322 From field.</dd>
+
+            <dt>DMARC Policy Record</dt>
+            <dd>Domain Owner DMARC preferences are stored as DNS TXT records in
+   subdomains named "_dmarc".  For example, the Domain Owner of
+   "example.com" would post DMARC preferences in a TXT record at
+   "_dmarc.example.com".  Similarly, a Mail Receiver wishing to query
+   for DMARC preferences regarding mail with an RFC5322.From domain of
+   "example.com" would issue a TXT query to the DNS for the subdomain of
+   "_dmarc.example.com".</dd>
+            <dt>Domain Owner</dt>
+            <dd>An entity or organization that owns a DNS domain.  The
+      term "owns" here indicates that the entity or organization being
+      referenced holds the registration of that DNS domain.  Domain
+      Owners range from complex, globally distributed organizations, to
+      service providers working on behalf of non-technical clients, to
+      individuals responsible for maintaining personal domains.  This
+      specification uses this term as analogous to an Administrative
+      Management Domain as defined in [EMAIL-ARCH].  It can also refer
+      to delegates, such as Report Receivers, when those are outside of
+      their immediate management domain.</dd>
+
+            <dt>fo</dt>
+            <dd><p>Failure reporting options.</p>
+      <p>Provides requested options for generation of failure reports.
+      Report generators MAY choose to adhere to the requested options.
+      This tag's content MUST be ignored if a "ruf" tag (below) is not
+      also specified.  The value of this tag is a colon-separated list
+      of characters that indicate failure reporting options as follows:</p>
+      <ul><li>0: Generate a DMARC failure report if all underlying
+         authentication mechanisms fail to produce an aligned "pass"
+         result. (default)</li>
+      <li>1: Generate a DMARC failure report if any underlying
+         authentication mechanism produced something other than an
+         aligned "pass" result.</li>
+      <li>d: Generate a DKIM failure report if the message had a signature
+         that failed evaluation, regardless of its alignment.</li>
+      <li>s: Generate an SPF failure report if the message failed SPF
+         evaluation, regardless of its alignment.</li></dd>
+
+            <dt>Identifier Alignment</dt>
+            <dd>When the domain in the RFC5322.From address
+      matches a domain validated by SPF or DKIM (or both), it has
+      Identifier Alignment.</dd>
+
+            <dt>Mail Receiver</dt>
+            <dd>The entity or organization that receives and
+      processes email.  Mail Receivers operate one or more Internet-
+      facing Mail Transport Agents (MTAs).</dd>
+
+            <dt>Organizational Domain</dt>
+            <dd>The domain that was registered with a domain
+      name registrar.  In the absence of more accurate methods,
+      heuristics are used to determine this, since it is not always the
+      case that the registered domain name is simply a top-level DNS
+      domain plus one component (e.g., "example.com", where "com" is a
+      top-level domain).</dd>
+
+            <dt>p</dt>
+            <dd>Requested Mail Receiver policy.
+      Indicates the policy to be enacted by the Receiver at
+      the request of the Domain Owner.  Policy applies to the domain
+      queried and to subdomains, unless subdomain policy is explicitly
+      described using the "sp" tag.  This tag is mandatory for policy
+      records only, but not for third-party reporting records.
+      Possible values are as follows:
+      <ul><li>none:  The Domain Owner requests no specific action be taken
+         regarding delivery of messages.</li>
+      <li>quarantine:  The Domain Owner wishes to have email that fails the
+         DMARC mechanism check be treated by Mail Receivers as
+         suspicious.  Depending on the capabilities of the Mail
+         Receiver, this can mean "place into spam folder", "scrutinize
+         with additional intensity", and/or "flag as suspicious".</li>
+      <li>reject:  The Domain Owner wishes for Mail Receivers to reject
+         email that fails the DMARC mechanism check.  Rejection SHOULD
+         occur during the SMTP transaction.  See Section 10.3 for some
+         discussion of SMTP rejection methods and their implications.</li>
+      </ul></dd>
+            <dt>pct</dt>
+            <dd>Percentage of messages from the Domain Owner's
+      mail stream to which the DMARC policy is to be applied.  However,
+      this MUST NOT be applied to the DMARC-generated reports, all of
+      which must be sent and received unhindered.  The purpose of the
+      "pct" tag is to allow Domain Owners to enact a slow rollout
+      enforcement of the DMARC mechanism.  The prospect of "all or
+      nothing" is recognized as preventing many organizations from
+      experimenting with strong authentication-based mechanisms.</dd>
+
+            <dt>Report Receiver</dt>
+            <dd>An operator that receives reports from another
+      operator implementing the reporting mechanism described in this
+      document.  Such an operator might be receiving reports about its
+      own messages, or reports about messages related to another
+      operator.  This term applies collectively to the system components
+      that receive and process these reports and the organizations that
+      operate them.</dd>
+            <dt>rf</dt>
+            <dd>Format to be used for message-specific failure reports.
+      The value of this tag is a list of one or more report formats as
+      requested by the Domain Owner to be used when a message fails both
+      [SPF] and [DKIM] tests to report details of the individual
+      failure. For this version, only "afrf" (the auth-failure report
+      type defined in [AFRF]) is presently supported.</dd>
+            <dt>ri</dt>
+            <dd>Interval requested between aggregate reports.
+            The default is 86400 (one day).  Indicates a
+      request to Receivers to generate aggregate reports separated by no
+      more than the requested number of seconds.  DMARC implementations
+      MUST be able to provide daily reports and SHOULD be able to
+      provide hourly reports when requested.  However, anything other
+      than a daily report is understood to be accommodated on a best-
+      effort basis.</dd>
+            <dt>rua</dt>
+            <dd>Addresses to which aggregate feedback is to be sent.</dd>
+            <dt>ruf</dt>
+            <dd>Addresses to which message-specific failure information is to
+      be reported.  If present, the Domain Owner is requesting Mail
+      Receivers to send detailed failure reports about messages that
+      fail the DMARC evaluation in specific ways (see the "fo" tag).</dd>
+
+            <dt>sp</dt>
+            <dd>Requested Mail Receiver policy for all subdomains.
+      Indicates the policy to be enacted by the Receiver at
+      the request of the Domain Owner.  It applies only to subdomains of
+      the domain queried and not to the domain itself.  Its syntax is
+      identical to that of the "p" tag.  If absent, the
+      policy specified by the "p" tag MUST be applied for subdomains.
+      Note that "sp" will be ignored for DMARC records published on
+      subdomains of Organizational Domains due to the effect of the
+      DMARC policy discovery mechanism </dd>
+
+            <dt>v</dt>
+            <dd>Version.  Identifies the record retrieved
+      as a DMARC record.  It MUST have the value of "DMARC1".</dd>
+        </dl>
+        <p><a href="https://tools.ietf.org/html/rfc7489"
+            >The DMARC specification
+            https://tools.ietf.org/html/rfc7489</a></p>
+        </div>
     </div>
 </div>
 {% endblock %}
