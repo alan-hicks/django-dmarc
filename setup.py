@@ -1,23 +1,22 @@
-import os
 from setuptools import setup
+from codecs import open
+from os import path
 
-README=open(os.path.join(os.path.dirname(__file__), 'docs/README.rst')).read()
+here = path.abspath(path.dirname(__file__))
 
-DESCRIPTION="""
-Making it easier to manage DMARC reports
-"""
 
-# allow setup.py to be run from any path
-os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
+# Get the long description from the README file
+with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
     name='django-dmarc',
     version='0.4.7',
     packages=['dmarc'],
     include_package_data=True,
-    license='BSD License',
-    description=DESCRIPTION,
-    long_description=README,
+    license='BSD',
+    description='Making it easier to manage DMARC reports',
+    long_description=long_description,
     url='http://p-o.co.uk/tech-articles/django-dmarc/',
     download_url='https://pypi.python.org/pypi/django-dmarc',
     author='Alan Hicks',
@@ -30,10 +29,11 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Office/Business',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    keywords='dmarc, email, spf, dkim',
+    keywords='dmarc email spf dkim',
 )
