@@ -236,16 +236,42 @@ document.addEventListener('DOMContentLoaded', function(event) {
     <div id="dmarc-tabs">
         <ul>
             <li><a href="#dmarc-tab-report">Report</a></li>
-            <!--li><a href="#dmarc-tab-faq">FAQ</a></li-->
+            <li><a href="#dmarc-tab-faq">FAQ</a></li>
             <li><a href="#dmarc-tab-glossary">Glossary</a></li>
         </ul>
         <div id="dmarc-tab-report">
             <table id="dmarc_results" style="border-style:solid;border-width:1px;"></table>
         </div>
-        <!--div id="dmarc-tab-faq">
-            <p>faq</p>
-            <p></p>
-        </div-->
+        <div id="dmarc-tab-faq">
+            <dl>
+                <dt>What is DMARC aiming to achieve?</dt>
+                <dd>Allows senders and receivers to improve and monitor
+                protection of their domain from fraudulent email by building
+                on and adding reporting to the widely deployed SPF and DKIM
+                protocols.</dd>
+                <dt>How do aggregate feedback reports help?</dt>
+                <dd>Feedback reports provide a mechanism to monitor and
+                improve mail handling.
+                </dd>
+                <dt>How does django-dmarc make implementing DMARC easier?</dt>
+                <dd>Collecting feedback reports is automated, allowing easier
+                filtering, with an option to download and use the data in a
+                spreadsheet.</dd>
+                <dt>Can I get detailed information about failures?</dt>
+                <dd>Yes, set the ruf attribute and a detailed report will be
+                sent for each failure.  See the
+                <a href="https://tools.ietf.org/html/rfc7489" target="_blank"
+                >RFC</a> for details.</dd>
+            </dl>
+            <p><a href="https://tools.ietf.org/html/rfc7489" target="_blank"
+                >The DMARC specification
+                https://tools.ietf.org/html/rfc7489</a></p>
+            <p><a href="https://tools.ietf.org/html/rfc7208" target="_blank"
+            >Sender Policy Framework (SPF)
+           for Authorizing Use of Domains in Email, Version 1</a></p>
+            <p><a href="https://tools.ietf.org/html/rfc6376" target="_blank"
+            >DomainKeys Identified Mail (DKIM) Signatures</a></p>
+        </div>
         <div id="dmarc-tab-glossary">
         <dl>
             <dt>DMARC</dt>
@@ -277,6 +303,13 @@ document.addEventListener('DOMContentLoaded', function(event) {
             <dd>The domain name of the apparent author, as extracted
       from the RFC5322 From field.</dd>
 
+            <dt>DomainKeys Identified Mail (DKIM)</dt>
+            <dd>DKIM is an email authentication method designed to detect
+            email spoofing. It allows the receiver to check that an email
+            claimed to come from a specific domain was indeed authorized
+            by the owner of that domain. It is intended to prevent forged
+            sender addresses in emails, a technique often used in phishing
+            and email spam.</dd>
             <dt>DMARC Policy Record</dt>
             <dd>Domain Owner DMARC preferences are stored as DNS TXT records in
    subdomains named "_dmarc".  For example, the Domain Owner of
@@ -395,6 +428,12 @@ document.addEventListener('DOMContentLoaded', function(event) {
       Receivers to send detailed failure reports about messages that
       fail the DMARC evaluation in specific ways (see the "fo" tag).</dd>
 
+            <dt>Sender Policy Framework (SPF)</dt>
+            <dd>Sender Policy Framework is a simple email-validation system
+            designed to detect email spoofing by providing a mechanism to
+            allow receiving mail exchangers to check that incoming mail from
+            a domain comes from a host authorized by that domain's
+            administrators.</dd>
             <dt>sp</dt>
             <dd>Requested Mail Receiver policy for all subdomains.
       Indicates the policy to be enacted by the Receiver at
@@ -410,9 +449,14 @@ document.addEventListener('DOMContentLoaded', function(event) {
             <dd>Version.  Identifies the record retrieved
       as a DMARC record.  It MUST have the value of "DMARC1".</dd>
         </dl>
-        <p><a href="https://tools.ietf.org/html/rfc7489"
+        <p><a href="https://tools.ietf.org/html/rfc7489" target="_blank"
             >The DMARC specification
             https://tools.ietf.org/html/rfc7489</a></p>
+        <p><a href="https://tools.ietf.org/html/rfc7208" target="_blank"
+        >Sender Policy Framework (SPF)
+        for Authorizing Use of Domains in Email, Version 1</a></p>
+        <p><a href="https://tools.ietf.org/html/rfc6376" target="_blank"
+        >DomainKeys Identified Mail (DKIM) Signatures</a></p>
         </div>
     </div>
 </div>
