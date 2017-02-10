@@ -1,3 +1,5 @@
+"""Managing DMARC aggregate and feedback reports
+"""
 from setuptools import setup
 from codecs import open
 from os import path
@@ -11,11 +13,11 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='django-dmarc',
-    version='0.4.7',
+    version='0.5.0',
     packages=['dmarc'],
     include_package_data=True,
     license='BSD',
-    description='Making it easier to manage DMARC reports',
+    description='Managing DMARC aggregate and feedback reports',
     long_description=long_description,
     url='http://p-o.co.uk/tech-articles/django-dmarc/',
     download_url='https://pypi.python.org/pypi/django-dmarc',

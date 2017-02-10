@@ -7,9 +7,9 @@
 Django DMARC
 ============
 
-**Making it easier to manage DMARC reports**
+**Managing DMARC aggregate and feedback reports**
 
-Designed to quickly and easily import DMARC aggregate feedback reports.
+Designed to quickly and easily manage DMARC aggregate and feedback reports.
 
 Contents
 ========
@@ -43,17 +43,21 @@ Quick start
 
 4. Run 'python manage.py migrate' to create the database models.
 
-5. Import a report with::
+5. Import an aggregate report with::
 
     python manage.py importdmarcreport --email
 
 6. See your aggregated feedback reports from the Admin page at admin/dmarc
 
+7. Import a feedback report with::
+
+    python manage.py importfeedbackreport --email
+
 Copyright
 =========
 
 Django DMARC and this documentation is
-Copyright (c) 2015-2016, Persistent Objects Ltd.
+Copyright (c) 2015-2017, Persistent Objects Ltd.
 All rights reserved.
 
 Contributors

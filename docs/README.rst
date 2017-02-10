@@ -2,9 +2,9 @@
 Documentation
 =============
 
-**Making it easier to manage DMARC aggregate feedback reports**
+**Managing DMARC aggregate and feedback reports**
 
-Designed to quickly and easily import DMARC aggregate feedback reports.
+Designed to quickly and easily manage DMARC aggregate and feedback reports.
 
 Quick start
 ===========

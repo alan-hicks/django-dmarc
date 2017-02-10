@@ -2,9 +2,9 @@
 Change Log
 ===========
 
-**Making it easier to manage DMARC reports**
+**Managing DMARC aggregate and feedback reports**
 
-Designed to quickly and easily import DMARC reports.
+Designed to quickly and easily manage DMARC aggregate and feedback reports.
 
 Change Log
 ==========
@@ -15,7 +15,7 @@ Copyright
 =========
 
 Django DMARC and this documentation is
-Copyright (c) 2015-2016, Persistent Objects Ltd.
+Copyright (c) 2015-2017, Persistent Objects Ltd.
 All rights reserved.
 
 License
