@@ -20,38 +20,28 @@ Contents
    README
    changelog
 
-Quick start
------------
+Description
+===========
 
-1. Install the app
+This Django DMARC project aims to ease implementating DMARC
+"Domain-based Message Authentication, Reporting & Conformance" and
+ongoing monitoring by importing aggregate and feedback reports about messages
+that pass and/or fail DMARC evaluation into a more easily digested format.
 
-2. Add "dmarc" to your INSTALLED_APPS setting::
+Perhaps one of the main reasons DMARC is gaining traction amongst
+organisations of all sizes is a desire to protect their people, brand and
+reputation.
+By defining and implementing a DMARC policy, an organization can help combat
+phishing, protect users and their reputation.
 
-    INSTALLED_APPS = (
-        ...
-        'dmarc',
-    )
+At beta stage, the application is stable, with most efforts on improving
+usability and documentation.
 
-3. Add dmarc.urls to your urls::
+Choosing Django was an easy choice as it offers an easily built import
+mechanism and transformation from xml to database through to presentation.
 
-    from dmarc import urls as dmarc_urls
-
-    urlpatterns = [
-        ...
-        url(r"^dmarc/", include(dmarc_urls)),
-    ]
-
-4. Run 'python manage.py migrate' to create the database models.
-
-5. Import an aggregate report with::
-
-    python manage.py importdmarcreport --email
-
-6. See your aggregated feedback reports from the Admin page at admin/dmarc
-
-7. Import a feedback report with::
-
-    python manage.py importfeedbackreport --email
+Although it has options for importing either xml or email files, zero
+maintenance is achieved by fully automating import of feedback and reports.
 
 Copyright
 =========

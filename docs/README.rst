@@ -6,6 +6,29 @@ Documentation
 
 Designed to quickly and easily manage DMARC aggregate and feedback reports.
 
+Description
+===========
+
+This Django DMARC project aims to ease implementating DMARC
+"Domain-based Message Authentication, Reporting & Conformance" and
+ongoing monitoring by importing aggregate and feedback reports about messages
+that pass and/or fail DMARC evaluation into a more easily digested format.
+
+Perhaps one of the main reasons DMARC is gaining traction amongst
+organisations of all sizes is a desire to protect their people, brand and
+reputation.
+By defining and implementing a DMARC policy, an organization can help combat
+phishing, protect users and their reputation.
+
+At beta stage, the application is stable, with most efforts on improving
+usability and documentation.
+
+Choosing Django was an easy choice as it offers an easily built import
+mechanism and transformation from xml to database through to presentation.
+
+Although it has options for importing either xml or email files, zero
+maintenance is achieved by fully automating import of feedback and reports.
+
 Quick start
 ===========
 
@@ -41,29 +64,6 @@ python manage.py importdmarcreport --email
 
 You can choose to import an xml or email file, alternatively with "--email -"
 you can pipe an email and it will do the right thing.
-
-Description
-===========
-
-This Django DMARC project aims to ease implementating DMARC
-"Domain-based Message Authentication, Reporting & Conformance" and
-ongoing monitoring by importing aggregate feedback reports about messages that
-pass and/or fail DMARC evaluation into a more easily digested format.
-
-Perhaps one of the main reasons DMARC is gaining traction amongst
-organisations of all sizes is a desire to protect their brand and reputation.
-By defining and implementing a DMARC policy, an organization can help combat
-phishing, protect users and their reputation.
-
-At beta stage, the application is stable, with most efforts on improving
-usability and documentation.
-
-Choosing Django was an easy choice as it offers an easily built import
-mechanism and transformation from xml to database through to presentation.
-
-Although it has options for importing either xml or email files, the way it's
-used here at Persistent Objects is fully automated, taking the email directly
-from SMTP and piping it through to the import routine.
 
 Installation
 ============
@@ -163,7 +163,7 @@ rejection or any) and by source ip address/reporting organisation.
 .. image:: images/dmarc-reportfilter.png
    :alt: Example DMARC aggregate feedback report
 
-These reports can help ease the introduction of DMARC making email safer.
+These reports can help ease any DMARC implementation.
 
 Maintenance
 ===========

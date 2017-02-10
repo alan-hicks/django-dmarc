@@ -13,7 +13,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='django-dmarc',
-    version='0.5.0',
+    version='0.5.1',
     packages=['dmarc'],
     include_package_data=True,
     license='BSD',
