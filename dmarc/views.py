@@ -1,11 +1,11 @@
 #----------------------------------------------------------------------
-# Copyright (c) 2015-2017, Persistent Objects Ltd http://p-o.co.uk/
+# Copyright (c) 2015-2018, Persistent Objects Ltd https://p-o.co.uk/
 #
 # License: BSD
 #----------------------------------------------------------------------
 """
 DMARC views
-http://dmarc.org/resources/specification/
+https://dmarc.org/resources/specification/
 """
 import csv
 import datetime

@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------
-# Copyright (c) 2015-2017, Persistent Objects Ltd http://p-o.co.uk/
+# Copyright (c) 2015-2018, Persistent Objects Ltd https://p-o.co.uk/
 #
 # License: BSD
 #----------------------------------------------------------------------
@@ -21,7 +21,7 @@ class Reporter(models.Model):
 
 class Report(models.Model):
     report_id = models.CharField(max_length=100)
-    reporter = models.ForeignKey(Reporter)
+    reporter = models.ForeignKey(Reporter, on_delete=models.CASCADE)
     date_begin = models.DateTimeField(db_index=True)
     date_end = models.DateTimeField()
     policy_domain = models.CharField(max_length=100)
@@ -39,7 +39,7 @@ class Report(models.Model):
         unique_together = (("reporter", "report_id", "date_begin"),)
 
 class Record(models.Model):
-    report = models.ForeignKey(Report, related_name='records')
+    report = models.ForeignKey(Report, related_name='records', on_delete=models.CASCADE)
     source_ip = models.CharField(max_length=39)
     recordcount = models.IntegerField()
     policyevaluated_disposition = models.CharField(max_length=10)
@@ -53,7 +53,7 @@ class Record(models.Model):
         return self.source_ip
 
 class Result(models.Model):
-    record = models.ForeignKey(Record, related_name='results')
+    record = models.ForeignKey(Record, related_name='results', on_delete=models.CASCADE)
     record_type = models.CharField(max_length=4)
     domain = models.CharField(max_length=100)
     result = models.CharField(max_length=9)
@@ -74,7 +74,7 @@ class FBReporter(models.Model):
         super(FBReporter, self).save(*args, **kwargs)
 
 class FBReport(models.Model):
-    reporter = models.ForeignKey(FBReporter)
+    reporter = models.ForeignKey(FBReporter, on_delete=models.CASCADE)
     date = models.DateTimeField(db_index=True)
     source_ip = models.CharField(max_length=39)
     domain = models.CharField(max_length=100)

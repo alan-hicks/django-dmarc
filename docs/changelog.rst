@@ -15,7 +15,7 @@ Copyright
 =========
 
 Django DMARC and this documentation is
-Copyright (c) 2015-2017, Persistent Objects Ltd.
+Copyright (c) 2015-2018, Persistent Objects Ltd.
 All rights reserved.
 
 License

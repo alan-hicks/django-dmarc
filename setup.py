@@ -5,15 +5,13 @@ from codecs import open
 from os import path
 
 here = path.abspath(path.dirname(__file__))
-
-
 # Get the long description from the README file
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
     name='django-dmarc',
-    version='0.5.1',
+    version='0.5.2',
     packages=['dmarc'],
     include_package_data=True,
     license='BSD',
@@ -28,8 +26,10 @@ setup(
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Framework :: Django',
+        'Framework :: Django :: 1.11',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
+        'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
