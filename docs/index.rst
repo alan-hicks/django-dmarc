@@ -47,7 +47,7 @@ Copyright
 =========
 
 Django DMARC and this documentation is
-Copyright (c) 2015-2018, Persistent Objects Ltd.
+Copyright (c) 2015-2020, Persistent Objects Ltd.
 All rights reserved.
 
 Contributors
@@ -68,7 +68,7 @@ License
 
 This documentation is licensed under the Creative Commons Attribution 4.0
 International License. To view a copy of this license, visit
-http://creativecommons.org/licenses/by/4.0/.
+https://creativecommons.org/licenses/by/4.0/.
 
 The software is licensed under the BSD two clause license.
 

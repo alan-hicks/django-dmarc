@@ -1,12 +1,10 @@
 #----------------------------------------------------------------------
-# Copyright (c) 2015-2018, Persistent Objects Ltd https://p-o.co.uk/
+# Copyright (c) 2015-2020, Persistent Objects Ltd https://p-o.co.uk/
 #
 # License: BSD
 #----------------------------------------------------------------------
 """Import DMARC Feedback Reports
 """
-from __future__ import unicode_literals
-
 import os, sys
 import pytz
 import logging
@@ -17,7 +15,7 @@ from email import message_from_file, message_from_string
 from email.generator import Generator
 from email.utils import mktime_tz, parsedate_tz
 from stat import S_ISREG
-from cStringIO import StringIO
+from io import StringIO
 from time import timezone
 from argparse import FileType
 
@@ -260,7 +258,6 @@ class Command(BaseCommand):
         g = None
         fp = None
 
-        print report.feedback_source
         for line in report.feedback_source.splitlines():
             line = line.lstrip()
             (ls0, ls1, ls2) = line.partition(':')

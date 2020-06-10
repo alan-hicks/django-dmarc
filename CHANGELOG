@@ -1,3 +1,11 @@
+Version 0.6.0 (2020-06-10)
+---------------------------
+
+Updated for Django 2.2
+Dropped support for Python 2.7
+Updated test script
+Updated Copyright to 2020
+
 Version 0.5.2 (2018-06-19)
 ---------------------------
 

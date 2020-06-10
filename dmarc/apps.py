@@ -1,10 +1,8 @@
 #----------------------------------------------------------------------
-# Copyright (c) 2015-2018, Persistent Objects Ltd https://p-o.co.uk/
+# Copyright (c) 2015-2020, Persistent Objects Ltd https://p-o.co.uk/
 #
 # License: BSD
 #----------------------------------------------------------------------
-
-from __future__ import unicode_literals
 
 from django.apps import AppConfig
 

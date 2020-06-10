@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from django.db import models, migrations
 
@@ -63,7 +62,7 @@ class Migration(migrations.Migration):
                 ('record_type', models.CharField(max_length=4)),
                 ('domain', models.CharField(max_length=100)),
                 ('result', models.CharField(max_length=9)),
-                ('record', models.ForeignKey(to='dmarc.Record')),
+                ('record', models.ForeignKey(to='dmarc.Record', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -76,7 +75,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='report',
             name='reporter',
-            field=models.ForeignKey(to='dmarc.Reporter'),
+            field=models.ForeignKey(to='dmarc.Reporter', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -86,7 +85,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='record',
             name='report',
-            field=models.ForeignKey(to='dmarc.Report'),
+            field=models.ForeignKey(to='dmarc.Report', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(

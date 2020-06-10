@@ -174,7 +174,7 @@ table is offered to allow for record deletion.
 Dependencies
 ============
 
-* `Django`_ 1.8+
+* `Django`_ 2.2+
 
 Resources
 =========
@@ -200,12 +200,12 @@ Communications are expected to conform to the `Django Code of Conduct`_.
 
 .. GENERAL LINKS
 
-.. _`Django`: http://djangoproject.com/
+.. _`Django`: https://djangoproject.com/
 .. _`Django Code of Conduct`: https://www.djangoproject.com/conduct/
-.. _`Python`: http://python.org/
-.. _`Persistent Objects Ltd`: http://p-o.co.uk/
-.. _`Project website`: http://p-o.co.uk/tech-articles/django-dmarc/
-.. _`DMARC`: http://dmarc.org/
+.. _`Python`: https://python.org/
+.. _`Persistent Objects Ltd`: https://p-o.co.uk/
+.. _`Project website`: https://p-o.co.uk/tech-articles/django-dmarc/
+.. _`DMARC`: https://dmarc.org/
 .. _`Google gmail DMARC`: https://support.google.com/a/answer/2466580
 .. _`Download from PyPI`: https://pypi.python.org/pypi/django-dmarc
 

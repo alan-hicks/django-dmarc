@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='utf-8'?>
+<feedback>
+    <report_metadata>
+        <org_name>Persistent Objects</org_name>
+        <email>ahicks@p-o.co.uk</email>
+        <report_id>5edbe461-ccda-1e41-abdb-00c0af3f9715@p-o.co.uk</report_id>
+        <date_range>
+            <begin>1424865600</begin>
+            <end>1424952000</end>
+        </date_range>
+    </report_metadata>
+    <policy_published>
+        <domain>p-o.co.uk</domain>
+        <adkim>r</adkim>
+        <aspf>r</aspf>
+        <p>quarantine</p>
+        <sp>none</sp>
+        <pct>100</pct>
+    </policy_published>
+    <record>
+        <row>
+            <source_ip>80.229.143.200</source_ip>
+            <count>1</count>
+            <policy_evaluated>
+                <disposition>none</disposition>
+                <dkim>pass</dkim>
+                <spf>pass</spf>
+            </policy_evaluated>
+        </row>
+        <identifiers>
+            <header_from>p-o.co.uk</header_from>
+        </identifiers>
+        <auth_results>
+            <spf>
+                <domain>p-o.co.uk</domain>
+                <result>pass</result>
+            </spf>
+            <dkim>
+                <domain>p-o.co.uk</domain>
+                <result>pass</result>
+            </dkim>
+        </auth_results>
+    </record>
+</feedback>

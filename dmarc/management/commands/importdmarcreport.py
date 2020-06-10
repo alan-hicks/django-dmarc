@@ -1,12 +1,10 @@
 #----------------------------------------------------------------------
-# Copyright (c) 2015-2018, Persistent Objects Ltd https://p-o.co.uk/
+# Copyright (c) 2015-2020, Persistent Objects Ltd https://p-o.co.uk/
 #
 # License: BSD
 #----------------------------------------------------------------------
 """Import DMARC Aggregate Reports
 """
-from __future__ import unicode_literals
-
 import os, sys
 import pytz
 import xml.etree.ElementTree as ET
@@ -18,7 +16,7 @@ import tempfile
 from datetime import datetime
 from email import message_from_file, message_from_string
 from stat import S_ISREG
-from cStringIO import StringIO
+from io import StringIO
 from time import timezone
 from argparse import FileType
 
@@ -67,7 +65,20 @@ class Command(BaseCommand):
             msg = 'Importing from email: {}'.format(email)
             dmarc_xml = self.get_xml_from_email(email)
         elif options['xml']:
-            dmarc_xml = options['xml'].read()
+            try:
+                dmarc_xml = options['xml'].read()
+            except:
+                pass
+            if not dmarc_xml:
+                try:
+                    # Test returns file name instead of file object
+                    xml_file = open(options['xml'])
+                    dmarc_xml = xml_file.read()
+                except:
+                    pass
+            if not dmarc_xml:
+                msg = "Unable to find DMARC file: {}".format(options['xml'])
+                raise CommandError(msg)
             msg = 'Importing from xml: {}'.format(dmarc_xml)
             logger.debug(msg)
         else:
