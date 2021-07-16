@@ -18,7 +18,10 @@ setup(
     description='Managing DMARC aggregate and feedback reports',
     long_description=long_description,
     long_description_content_type='text/x-rst',
-    url='https://p-o.co.uk/tech-articles/django-dmarc/',
+    url='https://github.com/alan-hicks/django-dmarc',
+    project_urls={
+        "About": "https://p-o.co.uk/tech-articles/django-dmarc/",
+    },
     download_url='https://pypi.python.org/pypi/django-dmarc',
     author='Alan Hicks',
     author_email='ahicks@p-o.co.uk',
