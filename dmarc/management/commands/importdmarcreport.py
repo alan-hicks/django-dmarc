@@ -5,8 +5,7 @@
 #----------------------------------------------------------------------
 """Import DMARC Aggregate Reports
 """
-import os, sys
-import pytz
+import os
 import xml.etree.ElementTree as ET
 import gzip
 import zipfile
@@ -14,17 +13,16 @@ import logging
 import tempfile
 
 from datetime import datetime
-from email import message_from_file, message_from_string
-from stat import S_ISREG
+from email import message_from_string
 from io import BytesIO
-from time import timezone
 from argparse import FileType
 
 from django.db.utils import IntegrityError
 from django.db import Error
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
+
+import pytz
 
 from dmarc.models import Reporter, Report, Record, Result
 
@@ -39,7 +37,7 @@ class Command(BaseCommand):
         parser.add_argument('-e', '--email',
             type=FileType('r'),
             default=False,
-            help='Import from email file, or - for stdin'
+            help='Import dmarc report from email file, or - for stdin'
         )
         parser.add_argument('-x', '--xml',
             type=FileType('r'),
@@ -74,8 +72,8 @@ class Command(BaseCommand):
             if not dmarc_xml:
                 try:
                     # Test returns file name instead of file object
-                    xml_file = open(options['xml'])
-                    dmarc_xml = xml_file.read()
+                    with open(options['xml']) as xml_file:
+                        dmarc_xml = xml_file.read()
                 except:
                     pass
             if not dmarc_xml:
@@ -126,8 +124,8 @@ class Command(BaseCommand):
         except ObjectDoesNotExist:
             try:
                 reporter = Reporter.objects.create(org_name=org_name, email=email)
-            except Error as e:
-                msg = "Unable to create DMARC report for {}: {}".format(org_name, e)
+            except Error as err:
+                msg = "Unable to create DMARC report for {}: {}".format(org_name, err)
                 logger.error(msg)
 
         # Reporting policy
@@ -175,12 +173,12 @@ class Command(BaseCommand):
         report.report_xml = dmarc_xml
         try:
             report.save()
-        except IntegrityError as e:
-            msg = "DMARC duplicate report record: {}".format(e)
+        except IntegrityError as err:
+            msg = "DMARC duplicate report record: {}".format(err)
             logger.error(msg)
             return None
-        except Error as e:
-            msg = "Unable to save the DMARC report header {}: {}".format(report_id, e)
+        except Error as err:
+            msg = "Unable to save the DMARC report header {}: {}".format(report_id, err)
             logger.error(msg)
 
         # Record
@@ -233,11 +231,11 @@ class Command(BaseCommand):
                 record.save()
                 msg = "DMARC record saved"
                 logger.debug(msg)
-            except IntegrityError as e:
-                msg = "DMARC duplicate record: {}".format(e)
+            except IntegrityError as err:
+                msg = "DMARC duplicate record: {}".format(err)
                 logger.error(msg)
-            except Error as e:
-                msg = "Unable to save the DMARC report record: {}".format(e)
+            except Error as err:
+                msg = "Unable to save the DMARC report record: {}".format(err)
                 logger.error(msg)
 
             auth_results = node.find('auth_results')
@@ -258,8 +256,9 @@ class Command(BaseCommand):
                     result.save()
                     msg = "DMARC result saved"
                     logger.debug(msg)
-                except Error as e:
-                    msg = "Unable to save the DMARC report result {} for {}: {}".format(resulttype.tag, result_domain, e.message)
+                except Error as err:
+                    msg = ("Unable to save the DMARC report result {} for {}: {}"
+                        ).format(resulttype.tag, result_domain, err)
                     logger.error(msg)
 
     def get_xml_from_email(self, email):
@@ -298,7 +297,7 @@ class Command(BaseCommand):
                         for f in files:
                             dmarc_xml = ZipFile.read(f)
                         ZipFile.close()
-                    except (zipfile.BadZipfile):
+                    except zipfile.BadZipfile:
                         msg = 'Unable to unzip mimepart'
                         logger.error(msg)
                         tf = tempfile.mkstemp(prefix='dmarc-',suffix='.zip')
@@ -339,4 +338,3 @@ class Command(BaseCommand):
                 msg = "DMARC Report is not in mimepart: {}".format(myname)
                 logger.debug(msg)
         return dmarc_xml
-

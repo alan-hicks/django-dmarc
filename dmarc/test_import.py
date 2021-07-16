@@ -9,9 +9,8 @@ DMARC tests for importing Aggregate Reports
 http://dmarc.org/resources/specification/
 """
 import os
-import pytz
-
 from datetime import datetime
+import pytz
 from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import CommandError
