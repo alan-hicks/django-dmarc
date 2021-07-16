@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------
-# Copyright (c) 2015-2020, Persistent Objects Ltd https://p-o.co.uk/
+# Copyright (c) 2015-2021, Persistent Objects Ltd https://p-o.co.uk/
 #
 # License: BSD
 #----------------------------------------------------------------------
@@ -16,7 +16,7 @@ import tempfile
 from datetime import datetime
 from email import message_from_file, message_from_string
 from stat import S_ISREG
-from io import StringIO
+from io import BytesIO
 from time import timezone
 from argparse import FileType
 
@@ -56,13 +56,15 @@ class Command(BaseCommand):
         """
 
         logger = logging.getLogger(__name__)
-        logger.info("Importing DMARC Aggregate Reports")
+        msg = "Importing DMARC Aggregate Reports"
+        logger.info(msg)
 
         dmarc_xml = ''
 
         if options['email']:
             email = options['email'].read()
             msg = 'Importing from email: {}'.format(email)
+            logger.debug(msg)
             dmarc_xml = self.get_xml_from_email(email)
         elif options['xml']:
             try:
@@ -78,6 +80,7 @@ class Command(BaseCommand):
                     pass
             if not dmarc_xml:
                 msg = "Unable to find DMARC file: {}".format(options['xml'])
+                logger.error(msg)
                 raise CommandError(msg)
             msg = 'Importing from xml: {}'.format(dmarc_xml)
             logger.debug(msg)
@@ -228,6 +231,8 @@ class Command(BaseCommand):
             record.identifier_headerfrom = identifier_headerfrom
             try:
                 record.save()
+                msg = "DMARC record saved"
+                logger.debug(msg)
             except IntegrityError as e:
                 msg = "DMARC duplicate record: {}".format(e)
                 logger.error(msg)
@@ -251,6 +256,8 @@ class Command(BaseCommand):
                 result.result = result_result
                 try:
                     result.save()
+                    msg = "DMARC result saved"
+                    logger.debug(msg)
                 except Error as e:
                     msg = "Unable to save the DMARC report result {} for {}: {}".format(resulttype.tag, result_domain, e.message)
                     logger.error(msg)
@@ -278,7 +285,7 @@ class Command(BaseCommand):
                 or mimepart.get_content_type() == 'application/zip' \
                 or mimepart.get_content_type() == 'application/gzip' \
                 or mimepart.get_content_type() == 'application/octet-stream':
-                dmarc_zip = StringIO()
+                dmarc_zip = BytesIO()
                 dmarc_zip.write(mimepart.get_payload(decode=True))
                 dmarc_zip.seek(0)
                 if zipfile.is_zipfile(dmarc_zip):
