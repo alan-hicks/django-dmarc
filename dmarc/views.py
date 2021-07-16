@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------
-# Copyright (c) 2015-2020, Persistent Objects Ltd https://p-o.co.uk/
+# Copyright (c) 2015-2021, Persistent Objects Ltd https://p-o.co.uk/
 #
 # License: BSD
 #----------------------------------------------------------------------
@@ -9,10 +9,8 @@ https://dmarc.org/resources/specification/
 """
 import csv
 import datetime
-import logging
 
 from django.contrib.admin.views.decorators import staff_member_required
-from django.core import serializers
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import connection
 from django.http import JsonResponse, StreamingHttpResponse
@@ -193,6 +191,5 @@ def dmarc_json(request):
 
     cursor = _sql_cursor(request.GET)
 
-    data = response = JsonResponse(cursor.fetchall(), safe=False)
+    data = JsonResponse(cursor.fetchall(), safe=False)
     return data
-

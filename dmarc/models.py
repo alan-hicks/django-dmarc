@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------
-# Copyright (c) 2015-2020, Persistent Objects Ltd https://p-o.co.uk/
+# Copyright (c) 2015-2021, Persistent Objects Ltd https://p-o.co.uk/
 #
 # License: BSD
 #----------------------------------------------------------------------
@@ -9,15 +9,15 @@ DMARC models for managing Aggregate Reports
 http://dmarc.org/resources/specification/
 """
 
-from datetime import datetime
 from django.db import models
 
 class Reporter(models.Model):
     org_name = models.CharField('Organisation', unique=True, max_length=100)
     email = models.EmailField()
 
-    def __unicode__(self):
-        return self.org_name
+    def __str__(self):
+        ret = "{}".format(self.org_name)
+        return ret
 
 class Report(models.Model):
     report_id = models.CharField(max_length=100)
@@ -32,8 +32,9 @@ class Report(models.Model):
     policy_pct = models.SmallIntegerField('Sampling rate')
     report_xml = models.TextField(blank=True)
 
-    def __unicode__(self):
-        return self.report_id
+    def __str__(self):
+        ret = "{}".format(self.report_id)
+        return ret
 
     class Meta:
         unique_together = (("reporter", "report_id", "date_begin"),)
@@ -49,8 +50,9 @@ class Record(models.Model):
     policyevaluated_reasoncomment = models.CharField(blank=True, max_length=100)
     identifier_headerfrom = models.CharField(max_length=100)
 
-    def __unicode__(self):
-        return self.source_ip
+    def __str__(self):
+        ret = "{}".format(self.source_ip)
+        return ret
 
 class Result(models.Model):
     record = models.ForeignKey(Record, related_name='results', on_delete=models.CASCADE)
@@ -58,15 +60,17 @@ class Result(models.Model):
     domain = models.CharField(max_length=100)
     result = models.CharField(max_length=9)
 
-    def __unicode__(self):
-        return "%s:%s-%s" % (str(self.id), self.record_type, self.domain,)
+    def __str__(self):
+        ret = "{}:{}-{}".format(self.id, self.record_type, self.domain)
+        return ret
 
 class FBReporter(models.Model):
     org_name = models.CharField('Organisation', unique=True, max_length=100)
     email = models.EmailField()
 
-    def __unicode__(self):
-        return self.email
+    def __str__(self):
+        ret = "{}".format(self.email)
+        return ret
 
     def save(self, *args, **kwargs):
         if not self.org_name:
@@ -88,9 +92,7 @@ class FBReport(models.Model):
     feedback_report = models.TextField(blank=True)
     feedback_source = models.TextField()
 
-    def __unicode__(self):
-        msg = '{} {} {} {} {}'.format(self.data, self.domain, self.source_ip,
+    def __str__(self):
+        msg = '{} {} {} {} {}'.format(self.date, self.domain, self.source_ip,
                 self.email_from, self.email_subject)
         return msg
-
-

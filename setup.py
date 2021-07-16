@@ -11,7 +11,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='django-dmarc',
-    version='0.6.1',
+    version='1.0.1',
     packages=['dmarc'],
     include_package_data=True,
     license='BSD',
@@ -27,7 +27,7 @@ setup(
     author_email='ahicks@p-o.co.uk',
     requires=['django'],
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Framework :: Django :: 2.2',
@@ -37,6 +37,7 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Office/Business',
         'Topic :: Software Development :: Libraries :: Python Modules',

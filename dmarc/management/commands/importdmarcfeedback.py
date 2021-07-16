@@ -1,27 +1,21 @@
 #----------------------------------------------------------------------
-# Copyright (c) 2015-2020, Persistent Objects Ltd https://p-o.co.uk/
+# Copyright (c) 2015-2021, Persistent Objects Ltd https://p-o.co.uk/
 #
 # License: BSD
 #----------------------------------------------------------------------
 """Import DMARC Feedback Reports
 """
-import os, sys
-import pytz
+import os
 import logging
 import tempfile
-
 from datetime import datetime
-from email import message_from_file, message_from_string
+from email import message_from_string
 from email.generator import Generator
 from email.utils import mktime_tz, parsedate_tz
-from stat import S_ISREG
 from io import StringIO
-from time import timezone
 from argparse import FileType
+import pytz
 
-from django.db.utils import IntegrityError
-from django.db import Error
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 
@@ -40,7 +34,7 @@ class Command(BaseCommand):
         parser.add_argument('-e', '--email',
             type=FileType('r'),
             default=False,
-            help='Import from email file, or - for stdin'
+            help='Import feedback from email file, or - for stdin'
         )
 
     def handle(self, *args, **options):
@@ -76,7 +70,7 @@ class Command(BaseCommand):
         report = FBReport()
         dmarc_reporter = None
         try:
-            dmarc_source = dmarcemail.get_payload()
+            dmarcemail.get_payload()
             dmarc_reporter = dmarcemail.get('from')
             report.reporter = FBReporter.objects.get(email=dmarc_reporter)
             mimepart = dmarcemail.get_payload()
@@ -128,7 +122,9 @@ class Command(BaseCommand):
                 g = None
                 fp = None
             else:
-                msg = 'Found {} instead of message/feedback-report'.format(mimepart.get_content_type())
+                msg = 'Found {} instead of message/feedback-report'.format(
+                    mimepart.get_content_type()
+                )
                 logger.error(msg)
         except:
             msg = 'Unable to get feedback-report part'
@@ -310,4 +306,3 @@ class Command(BaseCommand):
             tmpf.close()
             msg = 'Saved as: {}'.format(tf[1])
             logger.error(msg)
-
