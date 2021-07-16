@@ -9,7 +9,7 @@ DMARC models for managing Aggregate Reports
 http://dmarc.org/resources/specification/
 """
 
-__version__ = '0.7.0'
+__version__ = '1.0.0'
 __author__ = 'Alan Hicks'
 
 default_app_config = 'dmarc.apps.DmarcConfig'

@@ -1,3 +1,9 @@
+Version 1.0.0 (2021-07-16)
+---------------------------
+
+Version bump to 1.0 reflecting django-dmarc is now considered
+Production / Stable
+
 Version 0.7.0 (2021-07-16)
 ---------------------------
 Report default set to two days
