@@ -34,13 +34,13 @@ reputation.
 By defining and implementing a DMARC policy, an organization can help combat
 phishing, protect users and their reputation.
 
-At beta stage, the application is stable, with most efforts on improving
-usability and documentation.
+This project is stable, with most efforts on improving usability and
+documentation.
 
 Choosing Django was an easy choice as it offers an easily built import
 mechanism and transformation from xml to database through to presentation.
 
-Although it has options for importing either xml or email files, zero
+Although there are options for importing either xml or email files, zero
 maintenance is achieved by fully automating import of feedback and reports.
 
 Copyright
