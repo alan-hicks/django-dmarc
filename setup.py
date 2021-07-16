@@ -24,7 +24,7 @@ setup(
     author_email='ahicks@p-o.co.uk',
     requires=['django'],
     classifiers=[
-        'Development Status :: 5 - Stable',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Framework :: Django :: 2.2',
